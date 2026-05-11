@@ -33,4 +33,4 @@ npm run dev
 
 ## 👨‍💻 Team
 - **Frontend**: [@Chae-Chae97](https://github.com/Chae-Chae97)
-- **Backend**: [@강상 아이디 넣어주세요!](https://github.com/여기도 )
+- **Backend**: [@강상 깃 허브 계정 넣어주세요](https://github.com/**여기도)
