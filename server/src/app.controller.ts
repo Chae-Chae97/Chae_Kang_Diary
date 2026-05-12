@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import { CreateUserDto } from './dto/create-user.dto'; // ⭐ 추가!
 
-@Controller() // 여기에 경로가 비어있어야 http://localhost:4000/diary 가 작동합니다!
+@Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -10,22 +11,20 @@ export class AppController {
     return '서버 엔진 가동 중!';
   }
 
-  // 1. 일기 저장 입구 (POST /diary)
   @Post('diary')
   async create(@Body() body: { title: string; content: string }) {
-    console.log('데이터가 들어왔어요!:', body); // 서버 터미널에 로그가 찍힐 거예요
     return await this.appService.createDiary(body.title, body.content);
   }
 
-  // 2. 일기 목록 입구 (GET /diary)
   @Get('diary')
   async findAll() {
     return await this.appService.getAllDiaries();
   }
 
-  // 3. 회원가입 입구 (POST /auth/register)
+  // 3. 회원가입 입구 (업그레이드 완료! 🚀)
   @Post('auth/register')
-  async register(@Body() body: any) {
-    return await this.appService.register(body.email, body.password, body.nickname);
+  async register(@Body() createUserDto: CreateUserDto) { // ⭐ any 대신 DTO를 사용합니다.
+    // 서비스로 상자(DTO)를 통째로 넘겨줍니다.
+    return await this.appService.register(createUserDto);
   }
 }

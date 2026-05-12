@@ -4,9 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-// ⭐ 이 두 줄이 반드시 있어야 아래에서 에러가 안 납니다!
+// ⭐ Profile 엔티티 임포트 추가
 import { User } from '../entities/user.entity';
 import { Diary } from '../entities/diary.entity';
+import { Profile } from '../entities/profile.entity'; // 👈 추가된 부분
 
 @Module({
   imports: [
@@ -18,10 +19,12 @@ import { Diary } from '../entities/diary.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [User, Diary], // 👈 이제 여기서 빨간 줄이 사라질 거예요!
+      // ⭐ 관리할 엔티티 목록에 Profile 추가
+      entities: [User, Diary, Profile], 
       synchronize: true, 
     }),
-    TypeOrmModule.forFeature([User, Diary]), // 👈 여기도 마찬가지!
+    // ⭐ Repository를 사용하기 위해 Profile 추가
+    TypeOrmModule.forFeature([User, Diary, Profile]), 
   ],
   controllers: [AppController],
   providers: [AppService],

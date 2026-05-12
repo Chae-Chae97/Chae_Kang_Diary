@@ -12,6 +12,9 @@ export class Diary {
   @Column('text')
   content: string;
 
+  @Column()
+  emoji: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
