@@ -34,7 +34,7 @@ export default function SettingsPage() {
                 onClick={() => handleLanguageChange(l)}
                 className={`py-3 rounded-2xl font-bold transition-all ${
                   lang === l
-                    ? 'bg-blue-600 text-white shadow-lg scale-105'
+                    ? 'bg-yellow-400 text-black shadow-lg scale-105'
                     : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
               >
@@ -57,7 +57,7 @@ export default function SettingsPage() {
             <span className="font-medium text-gray-600 dark:text-gray-300">
               {isDarkMode ? t.theme_dark : t.theme_light}
             </span>
-            <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${isDarkMode ? 'bg-blue-600' : 'bg-gray-300'}`}>
+            <div className={`w-14 h-8 rounded-full p-1 transition-colors duration-300 ${isDarkMode ? 'bg-yellow-400' : 'bg-gray-300'}`}>
               <div className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isDarkMode ? 'translate-x-6' : ''}`} />
             </div>
           </div>

@@ -8,7 +8,12 @@ export const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 p-6 flex flex-col">
-      <h1 className="text-2xl font-bold mb-10 text-blue-400">My Diary</h1>
+      <Link href="/" className="group mb-10 flex items-center gap-2">
+        <span className="text-2xl group-hover:rotate-12 transition-transform">📔</span>
+        <h1 className="text-2xl font-bold text-yellow-400 group-hover:text-yellow-300 transition-colors">
+          My Diary
+        </h1>
+      </Link>
       
       <nav className="flex-1 space-y-4">
         <div className="text-gray-400 text-sm font-semibold uppercase">Menu</div>
