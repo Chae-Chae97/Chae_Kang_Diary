@@ -1,14 +1,16 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+// 🚀 최상단에서 환경 변수를 가장 먼저 로드합니다.
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exception.filter';
-import * as dotenv from 'dotenv'; 
-import * as path from 'path';
 
 async function bootstrap() {
-  dotenv.config({ path: path.join(process.cwd(), '.env') }); 
-
   const app = await NestFactory.create(AppModule);
+  // ... 생략
 
   app.useGlobalPipes(
     new ValidationPipe({
