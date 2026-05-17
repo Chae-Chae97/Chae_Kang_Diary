@@ -35,7 +35,7 @@ export default function Home() {
 
   // 1. 로그인 체크 및 일기 목록 불러오기
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) {
       router.push('/login');
       return;
@@ -59,7 +59,8 @@ export default function Home() {
     fetchDiaries();
   }, [router]);
 
-  if (!isAuthenticated && !localStorage.getItem('accessToken')) {
+  // SSR 시 localStorage 접근 에러 방지
+  if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem('accessToken')) {
     return <div className="text-center py-20 text-gray-500 font-medium">로그인이 필요합니다. 이동 중...</div>;
   }
 
