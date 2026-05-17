@@ -68,7 +68,8 @@ export default function Home() {
 
   if (!isMounted) return null;
 
-  if (!isAuthenticated && !localStorage.getItem('accessToken')) {
+  // SSR 시 localStorage 접근 에러 방지
+  if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem('accessToken')) {
     return <div className="text-center py-20 text-gray-500 font-medium">로그인이 필요합니다. 이동 중...</div>;
   }
 

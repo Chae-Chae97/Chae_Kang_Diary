@@ -29,8 +29,10 @@ export default function LoginPage() {
       // 2. 토큰 저장
       localStorage.setItem('accessToken', accessToken);
 
-      // 3. 유저 정보 가져오기
-      const userResponse = await api.get('/auth/me');
+      // 3. 유저 정보 가져오기 (토큰을 명시적으로 헤더에 담아 보냅니다)
+      const userResponse = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
       
       // 4. 전역 상태 업데이트
       setAuth({
