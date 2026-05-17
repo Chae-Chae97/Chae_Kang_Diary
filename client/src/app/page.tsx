@@ -12,6 +12,7 @@ import { DiaryDetailModal } from '@/components/diary/DiaryDetailModal';
 import { useLanguage } from '@/context/LanguageContext';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from 'sonner';
 
 interface Diary {
   id: number;
@@ -93,9 +94,9 @@ export default function Home() {
       await api.delete(`/diaries/${id}`);
       setDiaries(prev => prev.filter(d => d.id !== id));
       setIsModalOpen(false);
-      alert('일기가 삭제되었습니다.');
+      toast.success('일기가 삭제되었습니다.');
     } catch (error) {
-      alert('삭제에 실패했습니다.');
+      toast.error('삭제에 실패했습니다.');
     }
   };
 
@@ -116,7 +117,7 @@ export default function Home() {
             {t.home_desc}
           </p>
         </div>
-        <Link href="/write">
+        <Link href={`/write?date=${format(selectedDate, 'yyyy-MM-dd')}`}>
           <Button variant="primary" className="rounded-full gap-2 px-6 shadow-md hover:shadow-lg transition-all">
             <Plus className="w-5 h-5" />
             {t.menu_new_diary}

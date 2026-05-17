@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { Toaster } from "sonner";
 import { useEffect } from "react";
 import api from "@/lib/axios";
 import { useAuthStore } from "@/store/authStore";
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="flex">
         <ThemeProvider>
           <LanguageProvider>
+            <Toaster richColors position="top-right" />
             <Sidebar />
             
             <div className="flex-1 ml-64 flex flex-col min-h-screen">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { X, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 interface PasswordChangeModalProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
-      alert('새 비밀번호가 일치하지 않습니다.');
+      toast.error('새 비밀번호가 일치하지 않습니다.');
       return;
     }
 
@@ -36,13 +37,13 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
         currentPassword,
         newPassword
       });
-      alert('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해 주세요.');
+      toast.success('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해 주세요.');
       onClose();
       // 로그아웃 처리 등을 추가할 수 있습니다.
       window.location.href = '/login';
     } catch (error: any) {
       const message = error.response?.data?.message || '비밀번호 변경에 실패했습니다.';
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

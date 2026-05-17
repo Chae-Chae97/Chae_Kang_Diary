@@ -2,6 +2,7 @@ import { Body, Controller, Post, ValidationPipe, Get, UseGuards, Req, Patch } fr
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
@@ -30,5 +31,12 @@ export class AppController {
   @Patch('profile')
   async updateProfile(@Body('nickname') nickname: string, @Req() req) {
     return this.authService.updateProfile(req.user.userId, nickname);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('password')
+  async changePassword(@Body(ValidationPipe) changePasswordDto: ChangePasswordDto, @Req() req) {
+    await this.authService.changePassword(req.user.userId, changePasswordDto);
+    return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' };
   }
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { User, Mail, Calendar, Camera, ShieldCheck, BookHeart, PencilLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PasswordChangeModal } from '@/components/profile/PasswordChangeModal';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
   // 임시 사용자 데이터 (나중에 백엔드 API에서 가져올 데이터)
@@ -24,7 +25,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setUserInfo(prev => ({ ...prev, name: editName }));
     setIsEditing(false);
-    alert('프로필 정보가 수정되었습니다.');
+    toast.success('프로필 정보가 수정되었습니다.');
   };
 
   return (
