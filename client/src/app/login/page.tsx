@@ -28,16 +28,18 @@ export default function LoginPage() {
       // 2. 토큰 저장
       localStorage.setItem('accessToken', accessToken);
 
-      // 3. 유저 정보 가져오기 (토큰을 명시적으로 헤더에 담아 보냅니다)
+      // 3. 유저 정보 가져오기
       const userResponse = await api.get('/auth/me', {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
       
-      // 4. 전역 상태 업데이트
+      const userData = userResponse.data;
+      
+      // 4. 전역 상태 업데이트 (닉네임 우선, 이름 차선, 둘 다 없으면 '사용자')
       setAuth({
-        id: userResponse.data.id,
-        email: userResponse.data.email,
-        nickname: userResponse.data.profile?.nickname || '사용자',
+        id: userData.id,
+        email: userData.email,
+        nickname: userData.profile?.nickname || userData.name || '사용자',
       });
 
       alert('로그인되었습니다!');
