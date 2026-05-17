@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { X, Edit2, Trash2, Calendar, Bookmark } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
+import { enUS, ko, ja } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Diary {
   id: number;
@@ -24,22 +25,31 @@ interface DiaryDetailModalProps {
 }
 
 export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: DiaryDetailModalProps) {
-  const formattedDate = diary ? format(new Date(diary.date), "yyyy년 MM월 dd일 (EEEE)", { locale: ko }) : "";
+  const { lang, t } = useLanguage();
+
+  // 언어에 따른 date-fns 로케일 설정
+  const localeMap = {
+    ko: ko,
+    en: enUS,
+    jp: ja
+  };
+  
+  const currentLocale = localeMap[lang] || ko;
+
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    // TODO: 백엔드 API 연동 (PATCH /diaries/:id/bookmark)
+  };
+
+  const formattedDate = diary ? format(new Date(diary.date), t.diary_date_with_day_format, { locale: currentLocale }) : "";
 
   return (
     <AnimatePresence>
       {isOpen && diary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* 백드롭 */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
-          />
-
-          {/* 모달 컨텐츠 */}
+          {/* ... (backdrop) */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -63,12 +73,35 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: D
               </motion.div>
               <div className="text-center">
                 <span className="px-4 py-1.5 bg-black/10 rounded-full text-sm font-bold text-black/60 uppercase tracking-widest">
-                  Today's Mood
+                  {t.modal_mood_title}
                 </span>
               </div>
 
-              {/* 책갈피 아이콘 */}
-              <Bookmark className="absolute -top-1 left-8 w-8 h-12 text-black/20 fill-current" />
+              {/* 책갈피 버튼 */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9, y: 2 }}
+                onClick={toggleBookmark}
+                className="absolute -top-1 left-8 outline-none group"
+                title="소중한 기록으로 보관"
+              >
+                <Bookmark 
+                  className={`w-10 h-14 transition-colors duration-300 drop-shadow-md ${
+                    isBookmarked 
+                      ? "text-yellow-600 fill-yellow-600" 
+                      : "text-black/20 fill-black/10 group-hover:text-black/30"
+                  }`} 
+                />
+                {isBookmarked && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-16 -left-4 whitespace-nowrap bg-black/80 text-white text-[10px] px-2 py-1 rounded pointer-events-none"
+                  >
+                    소중한 기록 ✨
+                  </motion.div>
+                )}
+              </motion.button>
             </div>
 
             {/* 오른쪽 일기 본문 (줄 노트 스타일) */}
@@ -103,11 +136,11 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: D
                   className="flex-1 h-14 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform active:scale-95"
                 >
                   <Edit2 className="w-4 h-4" />
-                  Edit
+                  {t.modal_edit}
                 </button>
                 <button 
                   onClick={() => {
-                    if(confirm("이 소중한 기록을 정말 지울까요?")) onDelete(diary.id);
+                    if(confirm(t.modal_delete_confirm)) onDelete(diary.id);
                   }}
                   className="w-14 h-14 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                 >

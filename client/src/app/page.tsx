@@ -28,13 +28,20 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   
   // 모달 상태
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 1. 로그인 체크 및 일기 목록 불러오기
   useEffect(() => {
+    if (!isMounted) return;
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) {
       router.push('/login');
@@ -57,7 +64,9 @@ export default function Home() {
     };
 
     fetchDiaries();
-  }, [router]);
+  }, [router, isMounted]);
+
+  if (!isMounted) return null;
 
   // SSR 시 localStorage 접근 에러 방지
   if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem('accessToken')) {
@@ -101,10 +110,10 @@ export default function Home() {
       <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-            나의 일기 기록
+            {t.home_title}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            소중한 순간들을 캘린더에서 확인해보세요.
+            {t.home_desc}
           </p>
         </div>
         <Link href="/write">
@@ -127,8 +136,7 @@ export default function Home() {
           />
           
           <div className="mt-6 p-5 bg-yellow-50/50 dark:bg-yellow-900/10 rounded-2xl border border-yellow-100/50 dark:border-yellow-900/20">
-            <p className="text-sm text-yellow-700 dark:text-yellow-300 leading-relaxed">
-              💡 <strong>Tip:</strong> 노란색 점이 표시된 날짜는 일기가 작성된 날입니다. 날짜를 클릭하여 내용을 확인하세요.
+            <p className="text-sm text-yellow-700 dark:text-yellow-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: t.home_tip }}>
             </p>
           </div>
         </div>
