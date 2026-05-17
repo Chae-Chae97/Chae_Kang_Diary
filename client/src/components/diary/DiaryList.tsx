@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { enUS, ko, ja } from "date-fns/locale";
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, Sparkles, Bookmark } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -12,6 +12,7 @@ interface Diary {
   preview: string;
   mood: string;
   date: string;
+  isSpecial?: boolean;
 }
 
 interface DiaryListProps {
@@ -108,9 +109,16 @@ export function DiaryList({ selectedDate, diaries, onDiaryClick }: DiaryListProp
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-yellow-400/5 rounded-full group-hover:scale-150 transition-transform duration-500" />
                 
                 <div className="flex justify-between items-start mb-3 relative z-10">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-yellow-700 dark:group-hover:text-yellow-400 transition-colors">
-                    {diary.title}
-                  </h3>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-yellow-700 dark:group-hover:text-yellow-400 transition-colors">
+                        {diary.title}
+                      </h3>
+                      {diary.isSpecial && (
+                        <Bookmark className="w-4 h-4 text-yellow-500 fill-yellow-500 animate-pulse" />
+                      )}
+                    </div>
+                  </div>
                   <div className="text-3xl filter drop-shadow-md transform group-hover:rotate-12 transition-transform">
                     {diary.mood}
                   </div>

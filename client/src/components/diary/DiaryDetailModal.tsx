@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { X, Edit2, Trash2, Calendar, Bookmark } from "lucide-react";
 import { format } from "date-fns";
 import { enUS, ko, ja } from "date-fns/locale";
@@ -35,22 +36,20 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: D
   
   const currentLocale = localeMap[lang] || ko;
 
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    // TODO: 백엔드 API 연동 (PATCH /diaries/:id/bookmark)
+  };
+
   const formattedDate = diary ? format(new Date(diary.date), t.diary_date_with_day_format, { locale: currentLocale }) : "";
 
   return (
     <AnimatePresence>
       {isOpen && diary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* 백드롭 */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
-          />
-
-          {/* 모달 컨텐츠 */}
+          {/* ... (backdrop) */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -78,8 +77,31 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: D
                 </span>
               </div>
 
-              {/* 책갈피 아이콘 */}
-              <Bookmark className="absolute -top-1 left-8 w-8 h-12 text-black/20 fill-current" />
+              {/* 책갈피 버튼 */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9, y: 2 }}
+                onClick={toggleBookmark}
+                className="absolute -top-1 left-8 outline-none group"
+                title="소중한 기록으로 보관"
+              >
+                <Bookmark 
+                  className={`w-10 h-14 transition-colors duration-300 drop-shadow-md ${
+                    isBookmarked 
+                      ? "text-yellow-600 fill-yellow-600" 
+                      : "text-black/20 fill-black/10 group-hover:text-black/30"
+                  }`} 
+                />
+                {isBookmarked && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-16 -left-4 whitespace-nowrap bg-black/80 text-white text-[10px] px-2 py-1 rounded pointer-events-none"
+                  >
+                    소중한 기록 ✨
+                  </motion.div>
+                )}
+              </motion.button>
             </div>
 
             {/* 오른쪽 일기 본문 (줄 노트 스타일) */}

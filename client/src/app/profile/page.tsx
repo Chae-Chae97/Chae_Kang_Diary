@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { User, Mail, Calendar, Camera, ShieldCheck, BookHeart, PencilLine } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { PasswordChangeModal } from '@/components/profile/PasswordChangeModal';
 
 export default function ProfilePage() {
   // 임시 사용자 데이터 (나중에 백엔드 API에서 가져올 데이터)
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [editName, setEditName] = useState(userInfo.name);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
@@ -141,7 +143,11 @@ export default function ProfilePage() {
                   <div>
                     <h4 className="font-bold text-gray-800 dark:text-white">계정 보안</h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">소중한 개인정보 보호를 위해 정기적으로 비밀번호를 변경해 주세요.</p>
-                    <button type="button" className="text-sm text-yellow-600 dark:text-yellow-400 font-bold mt-3 hover:underline">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsPasswordModalOpen(true)}
+                      className="text-sm text-yellow-600 dark:text-yellow-400 font-bold mt-3 hover:underline"
+                    >
                       비밀번호 변경하기 →
                     </button>
                   </div>
@@ -179,6 +185,11 @@ export default function ProfilePage() {
           </div>
         </div>
       </motion.div>
+
+      <PasswordChangeModal 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)} 
+      />
     </div>
   );
 }
