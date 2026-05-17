@@ -16,7 +16,22 @@ export class DiariesService {
     });
   }
 
-  // ... 상세 조회 로직 등 (기존과 동일)
+  // 일기 상세 조회 (소유권 확인 포함)
+  async findOne(id: number, userId: number) {
+    const diary = await this.prisma.diary.findUnique({
+      where: { id },
+    });
+
+    if (!diary) {
+      throw new NotFoundException(`해당 ID(${id})의 일기를 찾을 수 없습니다.`);
+    }
+
+    if (diary.userId !== userId) {
+      throw new ForbiddenException('이 일기에 접근할 권한이 없습니다.');
+    }
+
+    return diary;
+  }
 
   // 일기 생성
   async create(createDiaryDto: CreateDiaryDto, userId: number) {
@@ -33,9 +48,9 @@ export class DiariesService {
     });
   }
 
-  // 일기 수정
+  // 일기 수정 (소유권 확인 포함)
   async update(id: number, updateDiaryDto: Partial<CreateDiaryDto>, userId: number) {
-    await this.findOne(id, userId);
+    await this.findOne(id, userId); // 존재 여부 및 소유권 확인
 
     return this.prisma.diary.update({
       where: { id },
