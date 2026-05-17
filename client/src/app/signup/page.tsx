@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { UserPlus, Mail, Lock, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '@/lib/axios';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -13,8 +14,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password !== confirmPassword) {
@@ -22,10 +24,25 @@ export default function SignupPage() {
       return;
     }
 
-    // TODO: 백엔드 API 연동 (POST /auth/signup)
-    console.log('회원가입 시도:', { name, email, password });
-    alert('회원가입이 완료되었습니다! 로그인해주세요.');
-    router.push('/login');
+    setIsLoading(true);
+
+    try {
+      // 실제 백엔드 API 호출 (POST /auth/signup)
+      // DTO 규격에 맞춰 email, password, nickname(name) 전달
+      await api.post('/auth/signup', { 
+        email, 
+        password, 
+        nickname: name 
+      });
+
+      alert('회원가입이 완료되었습니다! 로그인해주세요.');
+      router.push('/login');
+    } catch (error: any) {
+      const message = error.response?.data?.message || '회원가입에 실패했습니다.';
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,9 +131,10 @@ export default function SignupPage() {
 
           <Button 
             type="submit"
+            disabled={isLoading}
             className="w-full py-4 rounded-2xl text-lg font-bold shadow-lg shadow-yellow-100 dark:shadow-yellow-900/20 transition-transform hover:scale-[1.02] active:scale-[0.98] mt-4"
           >
-            가입하기
+            {isLoading ? '가입 중...' : '가입하기'}
           </Button>
         </form>
 

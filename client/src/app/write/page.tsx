@@ -4,31 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
-
-// 임시 데이터 (나중에 백엔드 API에서 가져올 데이터의 형태입니다)
-const DUMMY_DATA = [
-  {
-    id: 1,
-    title: "오늘의 프론트엔드 작업",
-    date: "2026-05-12",
-    content: "메인 페이지를 캘린더 뷰로 리뉴얼했다. 훨씬 깔끔하고 보기 좋다!",
-    mood: "😎",
-  },
-  {
-    id: 2,
-    title: "도커와 씨름한 날",
-    date: "2026-05-10",
-    content: "데이터베이스 연결이 이렇게 복잡할 줄이야. 그래도 백엔드 친구가 설정을 잘 마무리해서 다행이다.",
-    mood: "🤯",
-  },
-  {
-    id: 3,
-    title: "새로운 팀 프로젝트 시작",
-    date: "2026-05-09",
-    content: "본격적으로 일기장 프로젝트를 시작했다. 어떤 재미있는 기능들을 추가하게 될지 벌써부터 기대가 된다.",
-    mood: "🚀",
-  }
-];
+import api from '@/lib/axios';
 
 function WriteForm() {
   const router = useRouter();
@@ -39,18 +15,27 @@ function WriteForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('😊');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 수정 모드일 경우 기존 데이터 불러오기
   useEffect(() => {
     if (editId) {
-      const diaryToEdit = DUMMY_DATA.find(d => d.id === Number(editId));
-      if (diaryToEdit) {
-        setTitle(diaryToEdit.title);
-        setContent(diaryToEdit.content);
-        setMood(diaryToEdit.mood);
-      }
+      const fetchDiary = async () => {
+        try {
+          const response = await api.get(`/diaries/${editId}`);
+          const { title, content, mood } = response.data;
+          setTitle(title);
+          setContent(content);
+          setMood(mood);
+        } catch (error) {
+          console.error('일기 불러오기 실패:', error);
+          alert('일기를 불러오는 데 실패했습니다.');
+          router.push('/');
+        }
+      };
+      fetchDiary();
     }
-  }, [editId]);
+  }, [editId, router]);
 
   const moods = [
     { emoji: '😊', label: t.mood_happy },
@@ -60,25 +45,28 @@ function WriteForm() {
     { emoji: '😴', label: t.mood_tired },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (editId) {
-      console.log('일기 수정:', { id: editId, title, content, mood });
-      alert("일기가 수정되었습니다.");
-    } else {
-      const newDiary = {
-          id: Date.now(),
-          title,
-          content,
-          mood,
-          date: new Date().toISOString().split('T')[0],
-      };
-      console.log('새 일기 작성:', newDiary);
-      alert(t.save_success);
+    try {
+      if (editId) {
+        // 일기 수정 API 호출 (PATCH /diaries/:id)
+        await api.patch(`/diaries/${editId}`, { title, content, mood });
+        alert("일기가 수정되었습니다.");
+      } else {
+        // 새 일기 작성 API 호출 (POST /diaries)
+        await api.post('/diaries', { title, content, mood });
+        alert(t.save_success);
+      }
+      router.push('/');
+      router.refresh(); // 메인 페이지 데이터 갱신 유도
+    } catch (error: any) {
+      const message = error.response?.data?.message || '저장에 실패했습니다.';
+      alert(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    router.push('/');
   };
 
   return (
@@ -146,9 +134,10 @@ function WriteForm() {
           </button>
           <Button 
             type="submit"
+            disabled={isLoading}
             className="flex-[2] shadow-lg shadow-yellow-100 dark:shadow-yellow-900/20 font-bold py-4 rounded-2xl text-lg transition-transform hover:scale-[1.02]"
           >
-            {editId ? '수정 완료' : t.write_save_btn}
+            {isLoading ? '저장 중...' : (editId ? '수정 완료' : t.write_save_btn)}
           </Button>
         </div>
       </form>
