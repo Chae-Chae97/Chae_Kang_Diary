@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
-    const secret = process.env.JWT_SECRET || 'admin'; // .env 값과 일치하도록 유도
+    const secret = process.env.JWT_SECRET || 'admin';
     
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,12 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log(`[JwtStrategy] Validating payload:`, payload);
-    
-    if (!payload || !payload.sub) {
-      throw new UnauthorizedException('유효하지 않은 토큰 페이로드입니다.');
-    }
-
-    return { userId: payload.sub, email: payload.email };
+    // 🚀 sub(유저 ID)를 명확하게 id라는 이름으로 반환하여 통일합니다.
+    return { id: payload.sub, email: payload.email };
   }
 }

@@ -23,14 +23,14 @@ export class AppController {
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
   async getMe(@Req() req) {
-    console.log(`[Auth Me] Request from user ID: ${req.user.userId}`);
-    return this.authService.getProfile(req.user.userId);
+    console.log(`[Auth Me] Request from user ID: ${req.user.id}`);
+    return this.authService.getProfile(req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('profile')
   async updateProfile(@Body('nickname') nickname: string, @Req() req) {
-    return this.authService.updateProfile(req.user.userId, nickname);
+    return this.authService.updateProfile(req.user.id, nickname);
   }
 
   @UseGuards(AuthGuard('jwt'))

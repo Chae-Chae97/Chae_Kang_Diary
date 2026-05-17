@@ -23,10 +23,12 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 🚀 User 테이블의 name 필드와 Profile 테이블의 nickname 필드 모두에 저장합니다.
     await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
+        name: nickname, // 이 부분이 추가되었습니다!
         profile: {
           create: { nickname },
         },
@@ -51,7 +53,9 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
 
-    const payload = { email: user.email, sub: user.id };
+    const payload = { email: user.email, sub: Number(user.id) };
+    console.log(`[Login Success] Issuing token for user: ${user.email}, ID: ${user.id}`);
+    
     return {
       accessToken: this.jwtService.sign(payload),
     };

@@ -25,10 +25,12 @@ export default function RootLayout({
 
       try {
         const response = await api.get('/auth/me');
+        const userData = response.data;
+        
         setAuth({
-          id: response.data.id,
-          email: response.data.email,
-          nickname: response.data.profile?.nickname || '사용자',
+          id: userData.id,
+          email: userData.email,
+          nickname: userData.profile?.nickname || userData.name || '사용자',
         });
       } catch (error) {
         console.error('인증 확인 실패:', error);

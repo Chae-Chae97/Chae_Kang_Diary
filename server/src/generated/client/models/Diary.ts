@@ -41,6 +41,7 @@ export type DiaryMinAggregateOutputType = {
   title: string | null
   content: string | null
   mood: string | null
+  date: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   userId: number | null
@@ -51,6 +52,7 @@ export type DiaryMaxAggregateOutputType = {
   title: string | null
   content: string | null
   mood: string | null
+  date: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   userId: number | null
@@ -61,6 +63,7 @@ export type DiaryCountAggregateOutputType = {
   title: number
   content: number
   mood: number
+  date: number
   createdAt: number
   updatedAt: number
   userId: number
@@ -83,6 +86,7 @@ export type DiaryMinAggregateInputType = {
   title?: true
   content?: true
   mood?: true
+  date?: true
   createdAt?: true
   updatedAt?: true
   userId?: true
@@ -93,6 +97,7 @@ export type DiaryMaxAggregateInputType = {
   title?: true
   content?: true
   mood?: true
+  date?: true
   createdAt?: true
   updatedAt?: true
   userId?: true
@@ -103,6 +108,7 @@ export type DiaryCountAggregateInputType = {
   title?: true
   content?: true
   mood?: true
+  date?: true
   createdAt?: true
   updatedAt?: true
   userId?: true
@@ -200,6 +206,7 @@ export type DiaryGroupByOutputType = {
   title: string
   content: string
   mood: string
+  date: Date
   createdAt: Date
   updatedAt: Date
   userId: number
@@ -233,6 +240,7 @@ export type DiaryWhereInput = {
   title?: Prisma.StringFilter<"Diary"> | string
   content?: Prisma.StringFilter<"Diary"> | string
   mood?: Prisma.StringFilter<"Diary"> | string
+  date?: Prisma.DateTimeFilter<"Diary"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   userId?: Prisma.IntFilter<"Diary"> | number
@@ -244,6 +252,7 @@ export type DiaryOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   mood?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -258,6 +267,7 @@ export type DiaryWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Diary"> | string
   content?: Prisma.StringFilter<"Diary"> | string
   mood?: Prisma.StringFilter<"Diary"> | string
+  date?: Prisma.DateTimeFilter<"Diary"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   userId?: Prisma.IntFilter<"Diary"> | number
@@ -269,6 +279,7 @@ export type DiaryOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   mood?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -287,6 +298,7 @@ export type DiaryScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Diary"> | string
   content?: Prisma.StringWithAggregatesFilter<"Diary"> | string
   mood?: Prisma.StringWithAggregatesFilter<"Diary"> | string
+  date?: Prisma.DateTimeWithAggregatesFilter<"Diary"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Diary"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Diary"> | Date | string
   userId?: Prisma.IntWithAggregatesFilter<"Diary"> | number
@@ -296,6 +308,7 @@ export type DiaryCreateInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDiariesInput
@@ -306,6 +319,7 @@ export type DiaryUncheckedCreateInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: number
@@ -315,6 +329,7 @@ export type DiaryUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDiariesNestedInput
@@ -325,6 +340,7 @@ export type DiaryUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -335,6 +351,7 @@ export type DiaryCreateManyInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: number
@@ -344,6 +361,7 @@ export type DiaryUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -353,6 +371,7 @@ export type DiaryUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -373,6 +392,7 @@ export type DiaryCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   mood?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -388,6 +408,7 @@ export type DiaryMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   mood?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -398,6 +419,7 @@ export type DiaryMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
   mood?: Prisma.SortOrder
+  date?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -454,6 +476,7 @@ export type DiaryCreateWithoutUserInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -463,6 +486,7 @@ export type DiaryUncheckedCreateWithoutUserInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -501,6 +525,7 @@ export type DiaryScalarWhereInput = {
   title?: Prisma.StringFilter<"Diary"> | string
   content?: Prisma.StringFilter<"Diary"> | string
   mood?: Prisma.StringFilter<"Diary"> | string
+  date?: Prisma.DateTimeFilter<"Diary"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Diary"> | Date | string
   userId?: Prisma.IntFilter<"Diary"> | number
@@ -511,6 +536,7 @@ export type DiaryCreateManyUserInput = {
   title: string
   content: string
   mood: string
+  date: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -519,6 +545,7 @@ export type DiaryUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -528,6 +555,7 @@ export type DiaryUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -537,6 +565,7 @@ export type DiaryUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   mood?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,6 +577,7 @@ export type DiarySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   title?: boolean
   content?: boolean
   mood?: boolean
+  date?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
@@ -559,6 +589,7 @@ export type DiarySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   title?: boolean
   content?: boolean
   mood?: boolean
+  date?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
@@ -570,6 +601,7 @@ export type DiarySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   title?: boolean
   content?: boolean
   mood?: boolean
+  date?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
@@ -581,12 +613,13 @@ export type DiarySelectScalar = {
   title?: boolean
   content?: boolean
   mood?: boolean
+  date?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
 }
 
-export type DiaryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "mood" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["diary"]>
+export type DiaryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "content" | "mood" | "date" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["diary"]>
 export type DiaryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -607,6 +640,7 @@ export type $DiaryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     title: string
     content: string
     mood: string
+    date: Date
     createdAt: Date
     updatedAt: Date
     userId: number
@@ -1038,6 +1072,7 @@ export interface DiaryFieldRefs {
   readonly title: Prisma.FieldRef<"Diary", 'String'>
   readonly content: Prisma.FieldRef<"Diary", 'String'>
   readonly mood: Prisma.FieldRef<"Diary", 'String'>
+  readonly date: Prisma.FieldRef<"Diary", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Diary", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Diary", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Diary", 'Int'>
