@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function SignupPage() {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않습니다.');
+      toast.error('비밀번호가 일치하지 않습니다.');
       return;
     }
 
@@ -37,11 +38,11 @@ export default function SignupPage() {
         nickname: name 
       });
 
-      alert('회원가입이 완료되었습니다! 로그인해주세요.');
+      toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
       router.push('/login');
     } catch (error: any) {
       const message = error.response?.data?.message || '회원가입에 실패했습니다.';
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { Calendar, PenLine, Settings, LogOut, BookText } from 'lucide-react';
+import { Calendar, PenLine, Settings, LogOut, BookText, PieChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Sidebar = () => {
@@ -13,6 +13,7 @@ export const Sidebar = () => {
   const menuItems = [
     { icon: <Calendar className="w-5 h-5" />, label: t.menu_diary_list, href: '/' },
     { icon: <PenLine className="w-5 h-5" />, label: t.menu_new_diary, href: '/write' },
+    { icon: <PieChart className="w-5 h-5" />, label: t.menu_stats, href: '/stats' },
     { icon: <Settings className="w-5 h-5" />, label: t.menu_settings, href: '/settings' },
   ];
 

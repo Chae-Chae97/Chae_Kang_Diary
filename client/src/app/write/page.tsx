@@ -4,18 +4,30 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { ko, enUS, ja } from 'date-fns/locale';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 function WriteForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('id');
+  const initialDate = searchParams.get('date');
   
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('😊');
+  const [selectedDate, setSelectedDate] = useState<string>(
+    initialDate || format(new Date(), 'yyyy-MM-dd')
+  );
   const [isLoading, setIsLoading] = useState(false);
+
+  // 로케일 설정
+  const localeMap = { ko, en: enUS, jp: ja };
+  const currentLocale = localeMap[lang as keyof typeof localeMap] || ko;
 
   // 수정 모드일 경우 기존 데이터 불러오기
   useEffect(() => {
@@ -23,13 +35,14 @@ function WriteForm() {
       const fetchDiary = async () => {
         try {
           const response = await api.get(`/diaries/${editId}`);
-          const { title, content, mood } = response.data;
+          const { title, content, mood, createdAt } = response.data;
           setTitle(title);
           setContent(content);
           setMood(mood);
+          setSelectedDate(format(new Date(createdAt), 'yyyy-MM-dd'));
         } catch (error) {
           console.error('일기 불러오기 실패:', error);
-          alert('일기를 불러오는 데 실패했습니다.');
+          toast.error('일기를 불러오는 데 실패했습니다.');
           router.push('/');
         }
       };
@@ -50,20 +63,25 @@ function WriteForm() {
     setIsLoading(true);
 
     try {
+      const diaryData = { 
+        title, 
+        content, 
+        mood, 
+        createdAt: new Date(selectedDate).toISOString() 
+      };
+
       if (editId) {
-        // 일기 수정 API 호출 (PATCH /diaries/:id)
-        await api.patch(`/diaries/${editId}`, { title, content, mood });
-        alert("일기가 수정되었습니다.");
+        await api.patch(`/diaries/${editId}`, diaryData);
+        toast.success("일기가 수정되었습니다.");
       } else {
-        // 새 일기 작성 API 호출 (POST /diaries)
-        await api.post('/diaries', { title, content, mood });
-        alert(t.save_success);
+        await api.post('/diaries', diaryData);
+        toast.success(t.save_success);
       }
       router.push('/');
-      router.refresh(); // 메인 페이지 데이터 갱신 유도
+      router.refresh();
     } catch (error: any) {
       const message = error.response?.data?.message || '저장에 실패했습니다.';
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +94,23 @@ function WriteForm() {
       </h1>
       
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* 날짜 선택 섹션 */}
+        <div className="space-y-3">
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">기록할 날짜</label>
+          <div className="relative">
+            <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-600" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full pl-12 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white dark:focus:bg-gray-600 focus:ring-4 focus:ring-yellow-50 outline-none transition-all font-bold text-gray-800 dark:text-white"
+            />
+          </div>
+          <p className="text-[10px] text-gray-400 ml-1 italic">
+            * {format(parseISO(selectedDate), t.diary_date_with_day_format, { locale: currentLocale })} 기록입니다.
+          </p>
+        </div>
+
         {/* 감정 선택 섹션 */}
         <div className="space-y-3">
           <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">{t.write_mood_label}</label>

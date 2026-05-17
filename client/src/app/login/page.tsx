@@ -8,6 +8,7 @@ import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,11 +30,9 @@ export default function LoginPage() {
       // 2. 토큰 저장
       localStorage.setItem('accessToken', accessToken);
 
-      // 3. 유저 정보 가져오기 (토큰을 명시적으로 헤더에 담아 보냅니다)
-      const userResponse = await api.get('/auth/me', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      
+      // 3. 유저 정보 가져오기
+      const userResponse = await api.get('/auth/me');
+
       // 4. 전역 상태 업데이트
       setAuth({
         id: userResponse.data.id,
@@ -41,11 +40,11 @@ export default function LoginPage() {
         nickname: userResponse.data.profile?.nickname || '사용자',
       });
 
-      alert('로그인되었습니다!');
+      toast.success('로그인되었습니다!');
       router.push('/');
     } catch (error: any) {
       const message = error.response?.data?.message || '로그인에 실패했습니다.';
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
