@@ -5,10 +5,16 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
 @Injectable()
-export class PrismaService extends (PrismaClientClass as any) implements OnModuleInit {
+export class PrismaService
+  extends (PrismaClientClass as any)
+  implements OnModuleInit
+{
   constructor() {
-    const { DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE } = process.env;
-    const dbUrl = process.env.DATABASE_URL || `postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}`;
+    const { DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE } =
+      process.env;
+    const dbUrl =
+      process.env.DATABASE_URL ||
+      `postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}`;
 
     const pool = new Pool({ connectionString: dbUrl });
     const adapter = new PrismaPg(pool);

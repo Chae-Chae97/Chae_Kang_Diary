@@ -25,7 +25,10 @@ export const Header = () => {
   });
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer state update to avoid 'cascading renders' warning
+    queueMicrotask(() => {
+      setIsMounted(true);
+    });
   }, []);
 
   // 드롭다운 외부 클릭 시 닫기

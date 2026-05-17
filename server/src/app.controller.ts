@@ -1,4 +1,13 @@
-import { Body, Controller, Post, ValidationPipe, Get, UseGuards, Req, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  ValidationPipe,
+  Get,
+  UseGuards,
+  Req,
+  Patch,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -35,7 +44,10 @@ export class AppController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('password')
-  async changePassword(@Body(ValidationPipe) changePasswordDto: ChangePasswordDto, @Req() req) {
+  async changePassword(
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
+    @Req() req,
+  ) {
     await this.authService.changePassword(req.user.userId, changePasswordDto);
     return { success: true, message: '비밀번호가 성공적으로 변경되었습니다.' };
   }

@@ -25,7 +25,7 @@ interface Diary {
 export default function Home() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +36,10 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
+    // Defer state update to avoid 'cascading renders' warning
+    queueMicrotask(() => {
+      setIsMounted(true);
+    });
   }, []);
 
   // 1. 로그인 체크 및 일기 목록 불러오기
@@ -54,10 +57,13 @@ export default function Home() {
       try {
         const response = await api.get('/diaries');
         setDiaries(response.data);
-      } catch (error: any) {
-        console.error('일기 목록 로드 실패:', error);
-        if (error.response?.status === 401) {
-          router.push('/login');
+      } catch (err: unknown) {
+        console.error('일기 목록 로드 실패:', err);
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosError = err as { response: { status: number } };
+          if (axiosError.response?.status === 401) {
+            router.push('/login');
+          }
         }
       } finally {
         setIsLoading(false);
@@ -95,7 +101,7 @@ export default function Home() {
       setDiaries(prev => prev.filter(d => d.id !== id));
       setIsModalOpen(false);
       toast.success('일기가 삭제되었습니다.');
-    } catch (error) {
+    } catch {
       toast.error('삭제에 실패했습니다.');
     }
   };

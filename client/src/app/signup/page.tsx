@@ -40,8 +40,12 @@ export default function SignupPage() {
 
       toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
       router.push('/login');
-    } catch (error: any) {
-      const message = error.response?.data?.message || '회원가입에 실패했습니다.';
+    } catch (err: unknown) {
+      let message = '회원가입에 실패했습니다.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data: { message: string } } };
+        message = axiosError.response?.data?.message || message;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

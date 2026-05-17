@@ -41,8 +41,12 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
       onClose();
       // 로그아웃 처리 등을 추가할 수 있습니다.
       window.location.href = '/login';
-    } catch (error: any) {
-      const message = error.response?.data?.message || '비밀번호 변경에 실패했습니다.';
+    } catch (err: unknown) {
+      let message = '비밀번호 변경에 실패했습니다.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data: { message: string } } };
+        message = axiosError.response?.data?.message || message;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

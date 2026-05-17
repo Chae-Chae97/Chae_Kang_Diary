@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { format } from "date-fns";
 import { enUS, ko, ja } from "date-fns/locale";
-import { BookOpen, Sparkles, Bookmark, Search, Filter, X } from "lucide-react";
+import { BookOpen, Sparkles, Bookmark, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from '@/context/LanguageContext';
 

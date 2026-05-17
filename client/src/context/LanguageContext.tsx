@@ -17,7 +17,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     const savedLang = localStorage.getItem('diary_lang') as Language;
     if (savedLang && translations[savedLang]) {
-      setLangState(savedLang);
+      // Defer state update to avoid 'cascading renders' warning
+      queueMicrotask(() => {
+        setLangState(savedLang);
+      });
     }
   }, []);
 

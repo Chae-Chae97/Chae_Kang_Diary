@@ -1,7 +1,6 @@
 "use client";
 
 import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
 import { enUS, ko, ja } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +26,7 @@ export function DiaryCalendar({ selectedDate, onDateSelect, diaryDates }: DiaryC
     jp: ja
   };
   
-  const currentLocale = localeMap[lang] || ko;
+  const currentLocale = localeMap[lang as keyof typeof localeMap] || ko;
 
   return (
     <motion.div 

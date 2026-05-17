@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ko, enUS, ja } from 'date-fns/locale';
 import api from '@/lib/axios';
@@ -35,13 +35,13 @@ function WriteForm() {
       const fetchDiary = async () => {
         try {
           const response = await api.get(`/diaries/${editId}`);
-          const { title, content, mood, createdAt } = response.data;
-          setTitle(title);
-          setContent(content);
-          setMood(mood);
+          const { title: dTitle, content: dContent, mood: dMood, createdAt } = response.data;
+          setTitle(dTitle);
+          setContent(dContent);
+          setMood(dMood);
           setSelectedDate(format(new Date(createdAt), 'yyyy-MM-dd'));
-        } catch (error) {
-          console.error('일기 불러오기 실패:', error);
+        } catch (err: unknown) {
+          console.error('일기 불러오기 실패:', err);
           toast.error('일기를 불러오는 데 실패했습니다.');
           router.push('/');
         }
@@ -79,8 +79,12 @@ function WriteForm() {
       }
       router.push('/');
       router.refresh();
-    } catch (error: any) {
-      const message = error.response?.data?.message || '저장에 실패했습니다.';
+    } catch (err: unknown) {
+      let message = '저장에 실패했습니다.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data: { message: string } } };
+        message = axiosError.response?.data?.message || message;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

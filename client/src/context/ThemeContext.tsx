@@ -15,8 +15,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const savedTheme = localStorage.getItem('diary_theme');
     if (savedTheme === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
+      // Defer state update to avoid 'cascading renders' warning
+      queueMicrotask(() => {
+        setIsDarkMode(true);
+        document.documentElement.classList.add('dark');
+      });
     }
   }, []);
 

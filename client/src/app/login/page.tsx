@@ -42,8 +42,12 @@ export default function LoginPage() {
 
       toast.success('로그인되었습니다!');
       router.push('/');
-    } catch (error: any) {
-      const message = error.response?.data?.message || '로그인에 실패했습니다.';
+    } catch (err: unknown) {
+      let message = '로그인에 실패했습니다.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data: { message: string } } };
+        message = axiosError.response?.data?.message || message;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

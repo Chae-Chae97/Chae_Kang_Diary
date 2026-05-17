@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 
@@ -36,7 +40,7 @@ export class DiariesService {
   // 일기 생성
   async create(createDiaryDto: CreateDiaryDto, userId: number) {
     const { title, content, mood } = createDiaryDto;
-    
+
     return this.prisma.diary.create({
       data: {
         title,
@@ -48,7 +52,11 @@ export class DiariesService {
   }
 
   // 일기 수정 (소유권 확인 포함)
-  async update(id: number, updateDiaryDto: Partial<CreateDiaryDto>, userId: number) {
+  async update(
+    id: number,
+    updateDiaryDto: Partial<CreateDiaryDto>,
+    userId: number,
+  ) {
     await this.findOne(id, userId); // 존재 여부 및 소유권 확인
 
     return this.prisma.diary.update({
