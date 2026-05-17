@@ -35,13 +35,17 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
     const { email, password } = loginDto;
+    console.log(`[Login Attempt] Email: ${email}`);
 
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
+      console.log(`[Login Failed] User not found for email: ${email}`);
       throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
 
     const isPasswordMatching = await bcrypt.compare(password, user.password);
+    console.log(`[Login Debug] Password Match result: ${isPasswordMatching}`);
+
     if (!isPasswordMatching) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
     }

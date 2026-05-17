@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
@@ -10,56 +10,65 @@ import { DiaryCalendar } from '@/components/diary/DiaryCalendar';
 import { DiaryList } from '@/components/diary/DiaryList';
 import { DiaryDetailModal } from '@/components/diary/DiaryDetailModal';
 import { useLanguage } from '@/context/LanguageContext';
+import api from '@/lib/axios';
+import { useAuthStore } from '@/store/authStore';
 
 interface Diary {
   id: number;
   title: string;
-  preview: string;
+  content: string;
   mood: string;
-  date: string;
+  createdAt: string;
 }
-
-// 임시 데이터 (나중에 백엔드 API에서 가져올 데이터의 형태입니다)
-const INITIAL_DIARIES = [
-  {
-    id: 1,
-    title: "오늘의 프론트엔드 작업",
-    date: "2026-05-12",
-    preview: "메인 페이지를 캘린더 뷰로 리뉴얼했다. 훨씬 깔끔하고 보기 좋다!",
-    mood: "😎",
-  },
-  {
-    id: 2,
-    title: "도커와 씨름한 날",
-    date: "2026-05-10",
-    preview: "데이터베이스 연결이 이렇게 복잡할 줄이야. 그래도 백엔드 친구가 설정을 잘 마무리해서 다행이다.",
-    mood: "🤯",
-  },
-  {
-    id: 3,
-    title: "새로운 팀 프로젝트 시작",
-    date: "2026-05-09",
-    preview: "본격적으로 일기장 프로젝트를 시작했다. 어떤 재미있는 기능들을 추가하게 될지 벌써부터 기대가 된다.",
-    mood: "🚀",
-  }
-];
 
 export default function Home() {
   const router = useRouter();
   const { t } = useLanguage();
+  const { isAuthenticated, user } = useAuthStore();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [diaries, setDiaries] = useState<Diary[]>(INITIAL_DIARIES);
+  const [diaries, setDiaries] = useState<Diary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // 모달 상태
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 일기가 있는 날짜들의 목록
-  const diaryDates = diaries.map(d => d.date);
+  // 1. 로그인 체크 및 일기 목록 불러오기
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchDiaries = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.get('/diaries');
+        setDiaries(response.data);
+      } catch (error: any) {
+        console.error('일기 목록 로드 실패:', error);
+        if (error.response?.status === 401) {
+          router.push('/login');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDiaries();
+  }, [router]);
+
+  if (!isAuthenticated && !localStorage.getItem('accessToken')) {
+    return <div className="text-center py-20 text-gray-500 font-medium">로그인이 필요합니다. 이동 중...</div>;
+  }
+
+  // 일기가 있는 날짜들의 목록 (YYYY-MM-DD 형식으로 변환)
+  const diaryDates = diaries.map(d => format(new Date(d.createdAt), 'yyyy-MM-dd'));
 
   // 선택된 날짜에 해당하는 일기들 필터링
   const filteredDiaries = diaries.filter(diary => {
-    return diary.date === format(selectedDate, 'yyyy-MM-dd');
+    return format(new Date(diary.createdAt), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
   });
 
   const handleDiaryClick = (diary: Diary) => {
@@ -67,10 +76,17 @@ export default function Home() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteDiary = (id: number) => {
-    setDiaries(prev => prev.filter(d => d.id !== id));
-    setIsModalOpen(false);
-    // TODO: 백엔드 API 호출 (DELETE /diaries/:id)
+  const handleDeleteDiary = async (id: number) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    
+    try {
+      await api.delete(`/diaries/${id}`);
+      setDiaries(prev => prev.filter(d => d.id !== id));
+      setIsModalOpen(false);
+      alert('일기가 삭제되었습니다.');
+    } catch (error) {
+      alert('삭제에 실패했습니다.');
+    }
   };
 
   const handleEditDiary = (id: number) => {
@@ -117,17 +133,31 @@ export default function Home() {
 
         {/* 우측: 일기 목록 (8컬럼) */}
         <div className="lg:col-span-8">
-          <DiaryList 
-            selectedDate={selectedDate} 
-            diaries={filteredDiaries} 
-            onDiaryClick={handleDiaryClick}
-          />
+          {isLoading ? (
+            <div className="text-center py-20 text-gray-500 font-medium">데이터를 불러오는 중입니다...</div>
+          ) : (
+            <DiaryList 
+              selectedDate={selectedDate} 
+              diaries={filteredDiaries.map(d => ({
+                id: d.id,
+                title: d.title,
+                preview: d.content,
+                mood: d.mood,
+                date: format(new Date(d.createdAt), 'yyyy-MM-dd')
+              }))} 
+              onDiaryClick={(diary) => handleDiaryClick(diaries.find(d => d.id === diary.id)!)}
+            />
+          )}
         </div>
       </div>
 
       {/* 일기 상세 모달 */}
       <DiaryDetailModal 
-        diary={selectedDiary}
+        diary={selectedDiary ? {
+          ...selectedDiary,
+          preview: selectedDiary.content,
+          date: format(new Date(selectedDiary.createdAt), 'yyyy-MM-dd')
+        } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onDelete={handleDeleteDiary}

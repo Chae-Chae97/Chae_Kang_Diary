@@ -6,19 +6,47 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '@/lib/axios';
+import { useAuthStore } from '@/store/authStore';
 
 export default function LoginPage() {
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 백엔드 API 연동 (POST /auth/login)
-    console.log('로그인 시도:', { email, password });
-    alert('로그인되었습니다. (데모)');
-    router.push('/');
+    setIsLoading(true);
+
+    try {
+      // 1. 로그인 요청
+      const response = await api.post('/auth/login', { email, password });
+      const { accessToken } = response.data;
+
+      // 2. 토큰 저장
+      localStorage.setItem('accessToken', accessToken);
+
+      // 3. 유저 정보 가져오기
+      const userResponse = await api.get('/auth/me');
+      
+      // 4. 전역 상태 업데이트
+      setAuth({
+        id: userResponse.data.id,
+        email: userResponse.data.email,
+        nickname: userResponse.data.profile?.nickname || '사용자',
+      });
+
+      alert('로그인되었습니다!');
+      router.push('/');
+    } catch (error: any) {
+      const message = error.response?.data?.message || '로그인에 실패했습니다.';
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,9 +112,10 @@ export default function LoginPage() {
 
           <Button 
             type="submit"
+            disabled={isLoading}
             className="w-full py-4 rounded-2xl text-lg font-bold shadow-lg shadow-yellow-100 dark:shadow-yellow-900/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            로그인하기
+            {isLoading ? '로그인 중...' : '로그인하기'}
           </Button>
         </form>
 
