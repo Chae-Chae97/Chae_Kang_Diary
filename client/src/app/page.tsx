@@ -28,14 +28,21 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   
   // 모달 상태
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 1. 로그인 체크 및 일기 목록 불러오기
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    if (!isMounted) return;
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (!token) {
       router.push('/login');
       return;
@@ -57,7 +64,9 @@ export default function Home() {
     };
 
     fetchDiaries();
-  }, [router]);
+  }, [router, isMounted]);
+
+  if (!isMounted) return null;
 
   if (!isAuthenticated && !localStorage.getItem('accessToken')) {
     return <div className="text-center py-20 text-gray-500 font-medium">로그인이 필요합니다. 이동 중...</div>;
