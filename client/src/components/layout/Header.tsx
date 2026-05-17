@@ -116,7 +116,7 @@ export const Header = () => {
             <Link href="/login">
               <Button variant="secondary" size="sm" className="rounded-full gap-2 border border-gray-200 dark:border-gray-600 bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700">
                 <LogIn className="w-4 h-4" />
-                <span>로그인</span>
+                <span>{t.login}</span>
               </Button>
             </Link>
           </div>
