@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
@@ -77,6 +78,26 @@ export class AuthService {
     return this.prisma.profile.update({
       where: { userId },
       data: { nickname },
+    });
+  }
+
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const { currentPassword, newPassword } = changePasswordDto;
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+    }
+
+    const isPasswordMatching = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordMatching) {
+      throw new BadRequestException('현재 비밀번호가 일치하지 않습니다.');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
     });
   }
 }
