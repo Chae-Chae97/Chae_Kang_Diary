@@ -20,7 +20,10 @@ export class DiariesController {
 
   @Post()
   async create(@Body() createDiaryDto: CreateDiaryDto, @Req() req) {
-    return this.diariesService.create(createDiaryDto, req.user.userId);
+    // 이제 로그인한 유저의 ID를 토큰에서 가져와 사용합니다.
+    const userId = req.user.userId;
+    console.log(`[Diary Create] Creating diary for user ID: ${userId}`);
+    return this.diariesService.create(createDiaryDto, userId);
   }
 
   @Patch(':id')
