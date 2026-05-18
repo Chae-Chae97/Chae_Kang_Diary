@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsISO8601 } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsISO8601, IsOptional, IsBoolean } from 'class-validator';
 
 export enum Mood {
   HAPPY = '😊',
@@ -24,4 +24,8 @@ export class CreateDiaryDto {
   @IsNotEmpty()
   @IsISO8601({}, { message: '유효한 날짜 형식(ISO8601)이어야 합니다.' })
   date!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isSpecial?: boolean;
 }

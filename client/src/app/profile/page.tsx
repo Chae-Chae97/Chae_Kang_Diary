@@ -1,32 +1,89 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
-import { User, Mail, Calendar, Camera, ShieldCheck, BookHeart, PencilLine } from 'lucide-react';
+import { User, Mail, Calendar, Camera, ShieldCheck, BookHeart, PencilLine, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PasswordChangeModal } from '@/components/profile/PasswordChangeModal';
+import { useAuthStore } from '@/store/authStore';
+import { useLanguage } from '@/context/LanguageContext';
+import api from '@/lib/axios';
 import { toast } from 'sonner';
 
 export default function ProfilePage() {
-  // 임시 사용자 데이터 (나중에 백엔드 API에서 가져올 데이터)
-  const [userInfo, setUserInfo] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    joinedAt: '2026-05-01',
-    totalDiaries: 12,
-    favoriteMood: '😎',
+  const { user, setAuth } = useAuthStore();
+  const { t } = useLanguage();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalDiaries: 0,
+    favoriteMood: '😊',
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [editName, setEditName] = useState(userInfo.name);
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
+  const [profileData, setProfileData] = useState({
+    nickname: '',
+    bio: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 1. 프로필 정보 가져오기
+        const profileRes = await api.get('/auth/me');
+        const data = profileRes.data;
+        setProfileData({
+          nickname: data.profile?.nickname || data.name || '',
+          bio: data.profile?.bio || '',
+          avatar: data.profile?.avatar || '',
+        });
+
+        // 2. 일기 통계 가져오기
+        const diariesRes = await api.get('/diaries');
+        const diaries = diariesRes.data;
+        setStats({
+          totalDiaries: diaries.length,
+          favoriteMood: diaries.length > 0 ? diaries[0].mood : '😊', // 임시로 최근 감정
+        });
+      } catch (err) {
+        toast.error('정보를 불러오는데 실패했습니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserInfo(prev => ({ ...prev, name: editName }));
-    setIsEditing(false);
-    toast.success('프로필 정보가 수정되었습니다.');
+    try {
+      const res = await api.patch('/auth/profile', {
+        nickname: profileData.nickname,
+        bio: profileData.bio
+      });
+
+      // 전역 스토어 업데이트 (헤더 등 반영)
+      if (user) {
+        setAuth({
+          ...user,
+          nickname: profileData.nickname
+        });
+      }
+
+      setIsEditing(false);
+      toast.success('프로필 정보가 수정되었습니다.');
+    } catch (err) {
+      toast.error('수정에 실패했습니다.');
+    }
   };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-[60vh]">로딩 중...</div>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
@@ -38,25 +95,34 @@ export default function ProfilePage() {
         {/* 좌측: 프로필 카드 */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 text-center relative overflow-hidden">
-            {/* 배경 장식 */}
             <div className="absolute top-0 left-0 w-full h-24 bg-yellow-400 opacity-10" />
-            
+
             <div className="relative pt-4">
               <div className="relative inline-block">
-                <div className="w-28 h-28 bg-yellow-400 rounded-full flex items-center justify-center text-4xl font-bold text-black border-4 border-white dark:border-gray-800 shadow-lg mx-auto">
-                  {userInfo.name.charAt(0)}
+                <div className="w-28 h-28 bg-yellow-400 rounded-full flex items-center justify-center text-4xl font-bold text-black border-4 border-white dark:border-gray-800 shadow-lg mx-auto overflow-hidden">
+                  {profileData.avatar ? (
+                    <img src={profileData.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    profileData.nickname.charAt(0) || user?.email.charAt(0)
+                  )}
                 </div>
                 <button className="absolute bottom-0 right-0 p-2 bg-white dark:bg-gray-700 rounded-full shadow-md border border-gray-100 dark:border-gray-600 hover:bg-yellow-50 transition-colors">
                   <Camera className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                 </button>
               </div>
-              
-              <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mt-4">{userInfo.name}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{userInfo.email}</p>
-              
+
+              <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mt-4">{profileData.nickname}</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{user?.email}</p>
+
+              {profileData.bio && (
+                <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 italic">"{profileData.bio}"</p>
+              )}
+
               <div className="flex items-center justify-center gap-2 mt-6 py-2 px-4 bg-gray-50 dark:bg-gray-700/50 rounded-full inline-flex">
                 <Calendar className="w-4 h-4 text-yellow-600" />
-                <span className="text-xs font-bold text-gray-600 dark:text-gray-300">가입일: {userInfo.joinedAt}</span>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                  가입일: {user?.id ? '2026-05-18' : '가입 정보 없음'} 
+                </span>
               </div>
             </div>
           </div>
@@ -70,14 +136,14 @@ export default function ProfilePage() {
                   <BookHeart className="w-5 h-5 text-yellow-600" />
                   <span className="text-sm font-bold text-gray-700 dark:text-gray-300">작성한 일기</span>
                 </div>
-                <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">{userInfo.totalDiaries}개</span>
+                <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">{stats.totalDiaries}개</span>
               </div>
               <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">{userInfo.favoriteMood}</span>
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">주로 느끼는 감정</span>
+                  <span className="text-xl">{stats.favoriteMood}</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">최근 감정</span>
                 </div>
-                <span className="text-sm font-black text-blue-700 dark:text-blue-400">행복함</span>
+                <span className="text-sm font-black text-blue-700 dark:text-blue-400">기록됨</span>
               </div>
             </div>
           </div>
@@ -109,14 +175,14 @@ export default function ProfilePage() {
             <form onSubmit={handleUpdateProfile} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">이름</label>
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">이름(닉네임)</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input 
                       type="text"
                       disabled={!isEditing}
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      value={profileData.nickname}
+                      onChange={(e) => setProfileData({...profileData, nickname: e.target.value})}
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed font-bold text-gray-800 dark:text-white"
                     />
                   </div>
@@ -128,11 +194,25 @@ export default function ProfilePage() {
                     <input 
                       type="email"
                       disabled
-                      value={userInfo.email}
+                      value={user?.email || ''}
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl opacity-70 cursor-not-allowed font-bold text-gray-800 dark:text-white"
                     />
                   </div>
                   <p className="text-[10px] text-gray-400 ml-1 italic">* 이메일은 변경할 수 없습니다.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">자기소개</label>
+                <div className="relative">
+                  <FileText className="absolute left-4 top-5 w-5 h-5 text-gray-400" />
+                  <textarea 
+                    disabled={!isEditing}
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                    placeholder="자신을 한 줄로 표현해 보세요."
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium text-gray-800 dark:text-white h-32 resize-none"
+                  />
                 </div>
               </div>
 
@@ -159,10 +239,7 @@ export default function ProfilePage() {
                 <div className="flex gap-4 pt-4">
                   <button 
                     type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditName(userInfo.name);
-                    }}
+                    onClick={() => setIsEditing(false)}
                     className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
                   >
                     취소

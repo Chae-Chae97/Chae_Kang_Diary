@@ -19,7 +19,9 @@ interface Diary {
   title: string;
   content: string;
   mood: string;
+  date: string;
   createdAt: string;
+  isSpecial: boolean;
 }
 
 export default function Home() {
@@ -81,16 +83,29 @@ export default function Home() {
   }
 
   // 일기가 있는 날짜들의 목록 (YYYY-MM-DD 형식으로 변환)
-  const diaryDates = diaries.map(d => format(new Date(d.createdAt), 'yyyy-MM-dd'));
+  const diaryDates = diaries.map(d => format(new Date(d.date), 'yyyy-MM-dd'));
 
-  // 선택된 날짜에 해당하는 일기들 필터링
-  const filteredDiaries = diaries.filter(diary => {
-    return format(new Date(diary.createdAt), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-  });
+  // DiaryList에 전달할 전체 일기 데이터 (필터링은 DiaryList 내부에서 수행됨)
+  const allDiaries = diaries.map(d => ({
+    id: d.id,
+    title: d.title,
+    preview: d.content,
+    mood: d.mood,
+    date: format(new Date(d.date), 'yyyy-MM-dd'),
+    isSpecial: d.isSpecial
+  }));
 
-  const handleDiaryClick = (diary: Diary) => {
-    setSelectedDiary(diary);
-    setIsModalOpen(true);
+  const handleDiaryClick = (diary: any) => {
+    const fullDiary = diaries.find(d => d.id === diary.id);
+    if (fullDiary) {
+      setSelectedDiary(fullDiary);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleUpdateDiary = (updatedDiary: Diary) => {
+    setDiaries(prev => prev.map(d => d.id === updatedDiary.id ? updatedDiary : d));
+    setSelectedDiary(updatedDiary);
   };
 
   const handleDeleteDiary = async (id: number) => {
@@ -155,14 +170,8 @@ export default function Home() {
           ) : (
             <DiaryList 
               selectedDate={selectedDate} 
-              diaries={filteredDiaries.map(d => ({
-                id: d.id,
-                title: d.title,
-                preview: d.content,
-                mood: d.mood,
-                date: format(new Date(d.createdAt), 'yyyy-MM-dd')
-              }))} 
-              onDiaryClick={(diary) => handleDiaryClick(diaries.find(d => d.id === diary.id)!)}
+              diaries={allDiaries} 
+              onDiaryClick={handleDiaryClick}
             />
           )}
         </div>
@@ -173,12 +182,13 @@ export default function Home() {
         diary={selectedDiary ? {
           ...selectedDiary,
           preview: selectedDiary.content,
-          date: format(new Date(selectedDiary.createdAt), 'yyyy-MM-dd')
+          date: format(new Date(selectedDiary.date), 'yyyy-MM-dd')
         } : null}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onDelete={handleDeleteDiary}
         onEdit={handleEditDiary}
+        onUpdate={handleUpdateDiary}
       />
       
     </div>

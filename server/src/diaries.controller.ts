@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { DiariesService } from './diaries.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
+import { UpdateDiaryDto } from './dto/update-diary.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RequestWithUser } from './types';
 
@@ -48,10 +49,18 @@ export class DiariesController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateDiaryDto: Partial<CreateDiaryDto>,
+    @Body() updateDiaryDto: UpdateDiaryDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.diariesService.update(id, updateDiaryDto, req.user.id);
+    console.log(`[Diary Update Request] ID: ${id}, User: ${req.user.id}, Body:`, updateDiaryDto);
+    try {
+      const result = await this.diariesService.update(id, updateDiaryDto, req.user.id);
+      console.log(`[Diary Update Success] ID: ${id}`);
+      return result;
+    } catch (error) {
+      console.error(`[Diary Update Error] ID: ${id}, Error:`, error);
+      throw error;
+    }
   }
 
   @Delete(':id')

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { ko, enUS, ja } from 'date-fns/locale';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -15,8 +14,8 @@ function WriteForm() {
   const searchParams = useSearchParams();
   const editId = searchParams.get('id');
   const initialDate = searchParams.get('date');
-  
-  const { lang, t } = useLanguage();
+
+  const { t, dateLocale } = useLanguage();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('😊');
@@ -25,21 +24,17 @@ function WriteForm() {
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  // 로케일 설정
-  const localeMap = { ko, en: enUS, jp: ja };
-  const currentLocale = localeMap[lang as keyof typeof localeMap] || ko;
-
   // 수정 모드일 경우 기존 데이터 불러오기
   useEffect(() => {
     if (editId) {
       const fetchDiary = async () => {
         try {
           const response = await api.get(`/diaries/${editId}`);
-          const { title: dTitle, content: dContent, mood: dMood, createdAt } = response.data;
+          const { title: dTitle, content: dContent, mood: dMood, date: dDate } = response.data;
           setTitle(dTitle);
           setContent(dContent);
           setMood(dMood);
-          setSelectedDate(format(new Date(createdAt), 'yyyy-MM-dd'));
+          setSelectedDate(format(new Date(dDate), 'yyyy-MM-dd'));
         } catch (err: unknown) {
           console.error('일기 불러오기 실패:', err);
           toast.error('일기를 불러오는 데 실패했습니다.');
@@ -67,7 +62,7 @@ function WriteForm() {
         title, 
         content, 
         mood, 
-        createdAt: new Date(selectedDate).toISOString() 
+        date: new Date(selectedDate).toISOString() 
       };
 
       if (editId) {
@@ -111,7 +106,7 @@ function WriteForm() {
             />
           </div>
           <p className="text-[10px] text-gray-400 ml-1 italic">
-            * {format(parseISO(selectedDate), t.diary_date_with_day_format, { locale: currentLocale })} 기록입니다.
+            * {format(parseISO(selectedDate), t.diary_date_with_day_format, { locale: dateLocale })} 기록입니다.
           </p>
         </div>
 

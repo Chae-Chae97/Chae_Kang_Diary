@@ -39,7 +39,8 @@
   {
     "title": "string (required)",
     "content": "string (required)",
-    "mood": "string (required, emoji)"
+    "mood": "string (required, emoji)",
+    "date": "string (required, ISO8601)"
   }
   ```
 - **Response Body:**
@@ -49,6 +50,7 @@
     "title": "string",
     "content": "string",
     "mood": "string",
+    "date": "string",
     "createdAt": "string"
   }
   ```
@@ -65,6 +67,7 @@ export interface Diary {
   title: string;
   content: string;
   mood: '😊' | '😎' | '😭' | '😡' | '😴';
+  date: string;
   createdAt: string;
 }
 
@@ -72,6 +75,7 @@ export interface CreateDiaryDto {
   title: string;
   content: string;
   mood: string;
+  date: string;
 }
 ```
 

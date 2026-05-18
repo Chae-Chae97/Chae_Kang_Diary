@@ -2,14 +2,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations, Language } from '@/constants/globalMessages';
+import { enUS, ko, ja, Locale } from 'date-fns/locale';
 
 interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
   t: typeof translations.ko;
+  dateLocale: Locale;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+const localeMap: Record<Language, Locale> = {
+  ko: ko,
+  en: enUS,
+  jp: ja,
+};
 
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [lang, setLangState] = useState<Language>('ko');
@@ -30,9 +38,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   const t = translations[lang];
+  const dateLocale = localeMap[lang] || ko;
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, dateLocale }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
+import { UpdateDiaryDto } from './dto/update-diary.dto';
 
 @Injectable()
 export class DiariesService {
@@ -39,7 +40,7 @@ export class DiariesService {
 
   // 일기 생성
   async create(createDiaryDto: CreateDiaryDto, userId: number) {
-    const { title, content, mood, date } = createDiaryDto;
+    const { title, content, mood, date, isSpecial } = createDiaryDto;
 
     return this.prisma.diary.create({
       data: {
@@ -48,6 +49,7 @@ export class DiariesService {
         mood,
         userId,
         date: new Date(date),
+        isSpecial: isSpecial || false,
       },
     });
   }
@@ -55,17 +57,20 @@ export class DiariesService {
   // 일기 수정 (소유권 확인 포함)
   async update(
     id: number,
-    updateDiaryDto: Partial<CreateDiaryDto>,
+    updateDiaryDto: UpdateDiaryDto,
     userId: number,
   ) {
     await this.findOne(id, userId); // 존재 여부 및 소유권 확인
 
-    const { date, ...rest } = updateDiaryDto;
+    const { title, content, mood, date, isSpecial } = updateDiaryDto;
 
     return this.prisma.diary.update({
       where: { id },
       data: {
-        ...rest,
+        ...(title && { title }),
+        ...(content && { content }),
+        ...(mood && { mood }),
+        ...(isSpecial !== undefined && { isSpecial }),
         ...(date && { date: new Date(date) }),
       },
     });
