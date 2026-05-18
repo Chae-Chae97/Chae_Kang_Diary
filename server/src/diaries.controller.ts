@@ -26,6 +26,11 @@ export class DiariesController {
     return this.diariesService.findAll(req.user.id);
   }
 
+  @Get('stats')
+  async getStats(@Req() req: RequestWithUser) {
+    return this.diariesService.getStats(req.user.id);
+  }
+
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,

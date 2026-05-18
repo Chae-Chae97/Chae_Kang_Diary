@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { DiaryCalendar } from '@/components/diary/DiaryCalendar';
 import { DiaryList } from '@/components/diary/DiaryList';
 import { DiaryDetailModal } from '@/components/diary/DiaryDetailModal';
+import { DailyMotivational } from '@/components/ui/DailyMotivational';
 import { useLanguage } from '@/context/LanguageContext';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/store/authStore';
@@ -79,7 +80,7 @@ export default function Home() {
 
   // SSR 시 localStorage 접근 에러 방지
   if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem('accessToken')) {
-    return <div className="text-center py-20 text-gray-500 font-medium">로그인이 필요합니다. 이동 중...</div>;
+    return <div className="text-center py-20 text-gray-500 font-medium">{t.login_required}</div>;
   }
 
   // 일기가 있는 날짜들의 목록 (YYYY-MM-DD 형식으로 변환)
@@ -109,15 +110,15 @@ export default function Home() {
   };
 
   const handleDeleteDiary = async (id: number) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+    if (!confirm(t.confirm_delete)) return;
     
     try {
       await api.delete(`/diaries/${id}`);
       setDiaries(prev => prev.filter(d => d.id !== id));
       setIsModalOpen(false);
-      toast.success('일기가 삭제되었습니다.');
+      toast.success(t.delete_success);
     } catch {
-      toast.error('삭제에 실패했습니다.');
+      toast.error(t.delete_fail);
     }
   };
 
@@ -130,13 +131,16 @@ export default function Home() {
       
       {/* 상단: 타이틀 및 액션 버튼 */}
       <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {t.home_title}
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            {t.home_desc}
-          </p>
+        <div className="flex items-center gap-8">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+              {t.home_title}
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+              {t.home_desc}
+            </p>
+          </div>
+          <DailyMotivational />
         </div>
         <Link href={`/write?date=${format(selectedDate, 'yyyy-MM-dd')}`}>
           <Button variant="primary" className="rounded-full gap-2 px-6 shadow-md hover:shadow-lg transition-all">
@@ -166,7 +170,7 @@ export default function Home() {
         {/* 우측: 일기 목록 (8컬럼) */}
         <div className="lg:col-span-8">
           {isLoading ? (
-            <div className="text-center py-20 text-gray-500 font-medium">데이터를 불러오는 중입니다...</div>
+            <div className="text-center py-20 text-gray-500 font-medium">{t.loading}</div>
           ) : (
             <DiaryList 
               selectedDate={selectedDate} 

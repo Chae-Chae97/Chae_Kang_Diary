@@ -6,6 +6,7 @@ import { X, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface PasswordChangeModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface PasswordChangeModalProps {
 }
 
 export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProps) {
+  const { t } = useLanguage();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,7 +29,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
     e.preventDefault();
     
     if (newPassword !== confirmPassword) {
-      toast.error('새 비밀번호가 일치하지 않습니다.');
+      toast.error(t.password_mismatch);
       return;
     }
 
@@ -37,12 +39,12 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
         currentPassword,
         newPassword
       });
-      toast.success('비밀번호가 성공적으로 변경되었습니다. 다시 로그인해 주세요.');
+      toast.success(t.password_change_success);
       onClose();
       // 로그아웃 처리 등을 추가할 수 있습니다.
       window.location.href = '/login';
     } catch (err: unknown) {
-      let message = '비밀번호 변경에 실패했습니다.';
+      let message = t.password_change_fail;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response: { data: { message: string } } };
         message = axiosError.response?.data?.message || message;
@@ -82,14 +84,14 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
               <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-100 dark:shadow-none mb-4">
                 <ShieldAlert className="w-7 h-7 text-black" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">비밀번호 변경</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">안전한 계정 관리를 위해 비밀번호를 수정합니다.</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.password_change_title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{t.password_change_desc}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* 현재 비밀번호 */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">현재 비밀번호</label>
+                <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t.password_current}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -116,7 +118,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
 
               {/* 새 비밀번호 */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">새 비밀번호</label>
+                <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t.password_new}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -125,7 +127,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all font-medium"
-                    placeholder="8자 이상 입력"
+                    placeholder={t.password_placeholder_new}
                   />
                   <button
                     type="button"
@@ -143,7 +145,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
 
               {/* 새 비밀번호 확인 */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">새 비밀번호 확인</label>
+                <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t.password_confirm}</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input 
@@ -152,7 +154,7 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3.5 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all font-medium"
-                    placeholder="다시 한번 입력"
+                    placeholder={t.password_placeholder_confirm}
                   />
                   <button
                     type="button"
@@ -174,14 +176,14 @@ export function PasswordChangeModal({ isOpen, onClose }: PasswordChangeModalProp
                   onClick={onClose}
                   className="flex-1 py-3.5 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
                 >
-                  취소
+                  {t.cancel}
                 </button>
                 <Button 
                   type="submit"
                   disabled={isLoading}
                   className="flex-[2] py-3.5 rounded-2xl font-bold shadow-lg shadow-yellow-100 dark:shadow-none"
                 >
-                  {isLoading ? '변경 중...' : '변경하기'}
+                  {isLoading ? t.password_changing : t.password_change_btn}
                 </Button>
               </div>
             </form>

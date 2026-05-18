@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/Button';
 import { UserPlus, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '@/lib/axios';
+import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t, lang } = useLanguage();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,25 +25,23 @@ export default function SignupPage() {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      toast.error('비밀번호가 일치하지 않습니다.');
+      toast.error(t.password_mismatch);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // 실제 백엔드 API 호출 (POST /auth/signup)
-      // DTO 규격에 맞춰 email, password, nickname(name) 전달
       await api.post('/auth/signup', { 
         email, 
         password, 
         nickname: name 
       });
 
-      toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
+      toast.success(t.signup_success);
       router.push('/login');
     } catch (err: unknown) {
-      let message = '회원가입에 실패했습니다.';
+      let message = t.signup_fail;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response: { data: { message: string } } };
         message = axiosError.response?.data?.message || message;
@@ -50,6 +50,12 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const alreadyHaveAccountText = {
+    ko: '이미 계정이 있으신가요?',
+    en: 'Already have an account?',
+    jp: '既にアカウントをお持ちですか？',
   };
 
   return (
@@ -63,13 +69,13 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-200 dark:shadow-none mb-4 -rotate-3">
             <UserPlus className="w-8 h-8 text-black" />
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">처음이신가요?</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">나만의 일기장을 만들어보세요.</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{t.signup_title}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">{t.signup_subtitle}</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">이름</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">{t.name_label}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="h-5 w-5 text-gray-400" />
@@ -78,7 +84,7 @@ export default function SignupPage() {
                 type="text"
                 required
                 className="w-full pl-11 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white dark:focus:bg-gray-600 focus:ring-4 focus:ring-yellow-50 dark:focus:ring-yellow-900 focus:border-yellow-400 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500 font-medium"
-                placeholder="홍길동"
+                placeholder={t.name_label}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -86,7 +92,7 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">이메일 주소</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">{t.email_label}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-gray-400" />
@@ -103,7 +109,7 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">비밀번호</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">{t.password_label}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-gray-400" />
@@ -112,7 +118,7 @@ export default function SignupPage() {
                 type={showPassword ? 'text' : 'password'}
                 required
                 className="w-full pl-11 pr-12 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white dark:focus:bg-gray-600 focus:ring-4 focus:ring-yellow-50 dark:focus:ring-yellow-900 focus:border-yellow-400 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500 font-medium"
-                placeholder="8자 이상 입력해주세요"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -131,7 +137,7 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">비밀번호 확인</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">{t.password_confirm_label}</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-gray-400" />
@@ -140,7 +146,7 @@ export default function SignupPage() {
                 type={showConfirmPassword ? 'text' : 'password'}
                 required
                 className="w-full pl-11 pr-12 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white dark:focus:bg-gray-600 focus:ring-4 focus:ring-yellow-50 dark:focus:ring-yellow-900 focus:border-yellow-400 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500 font-medium"
-                placeholder="다시 한번 입력해주세요"
+                placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -163,15 +169,16 @@ export default function SignupPage() {
             disabled={isLoading}
             className="w-full py-4 rounded-2xl text-lg font-bold shadow-lg shadow-yellow-100 dark:shadow-yellow-900/20 transition-transform hover:scale-[1.02] active:scale-[0.98] mt-4"
           >
-            {isLoading ? '가입 중...' : '가입하기'}
+            {isLoading ? `${t.loading}` : t.signup_link}
           </Button>
         </form>
 
         <div className="mt-8 pt-6 border-t border-gray-50 dark:border-gray-700 text-center">
           <p className="text-gray-500 dark:text-gray-400">
-            이미 계정이 있으신가요?{' '}
+            {alreadyHaveAccountText[lang]}
+            {' '}
             <Link href="/login" className="text-yellow-600 dark:text-yellow-400 font-bold hover:underline">
-              로그인 하기
+              {t.login}
             </Link>
           </p>
         </div>

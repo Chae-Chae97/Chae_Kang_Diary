@@ -13,6 +13,7 @@ export const Sidebar = () => {
   const menuItems = [
     { icon: <Calendar className="w-5 h-5" />, label: t.menu_diary_list, href: '/' },
     { icon: <PenLine className="w-5 h-5" />, label: t.menu_new_diary, href: '/write' },
+    { icon: <BookText className="w-5 h-5" />, label: t.menu_archive, href: '/archive' },
     { icon: <PieChart className="w-5 h-5" />, label: t.menu_stats, href: '/stats' },
     { icon: <Settings className="w-5 h-5" />, label: t.menu_settings, href: '/settings' },
   ];

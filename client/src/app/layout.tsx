@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import QueryProvider from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
 import { useEffect } from "react";
 import api from "@/lib/axios";
@@ -47,18 +48,20 @@ export default function RootLayout({
       <body className="flex">
         <ThemeProvider>
           <LanguageProvider>
-            <Toaster richColors position="top-right" />
-            <Sidebar />
-            
-            <div className="flex-1 ml-64 flex flex-col min-h-screen">
-              <Header />
+            <QueryProvider>
+              <Toaster richColors position="top-right" />
+              <Sidebar />
               
-              <main className="flex-1 bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-300">
-                {children}
-              </main>
-              
-              <Footer />
-            </div>
+              <div className="flex-1 ml-64 flex flex-col min-h-screen">
+                <Header />
+                
+                <main className="flex-1 bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-300">
+                  {children}
+                </main>
+                
+                <Footer />
+              </div>
+            </QueryProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

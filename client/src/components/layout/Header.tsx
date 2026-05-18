@@ -86,7 +86,7 @@ export const Header = () => {
                   className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden z-50"
                 >
                   <div className="p-4 border-b border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">내 계정</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t.account_my_account}</p>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mt-1 truncate">{user.email}</p>
                   </div>
                   
@@ -94,13 +94,13 @@ export const Header = () => {
                     <Link href="/profile" onClick={() => setIsDropdownOpen(false)}>
                       <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:text-yellow-700 dark:hover:text-yellow-400 rounded-xl transition-colors group">
                         <User className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        <span>회원 정보 조회</span>
+                        <span>{t.account_profile}</span>
                       </button>
                     </Link>
                     <Link href="/settings" onClick={() => setIsDropdownOpen(false)}>
                       <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:text-yellow-700 dark:hover:text-yellow-400 rounded-xl transition-colors group">
                         <Settings className="w-4 h-4 group-hover:rotate-45 transition-transform" />
-                        <span>설정</span>
+                        <span>{t.menu_settings}</span>
                       </button>
                     </Link>
                   </div>
@@ -111,7 +111,7 @@ export const Header = () => {
                       className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors group"
                     >
                       <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      <span>로그아웃</span>
+                      <span>{t.logout}</span>
                     </button>
                   </div>
                 </motion.div>
