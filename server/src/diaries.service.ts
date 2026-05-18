@@ -1,17 +1,22 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
+import { UpdateDiaryDto } from './dto/update-diary.dto';
 
 @Injectable()
 export class DiariesService {
   constructor(private prisma: PrismaService) {}
 
-  // 내 일기 목록 조회 (실제 일기 날짜 기준 정렬)
+  // 내 일기 목록 조회 (일기 날짜 기준 정렬)
   async findAll(userId: number) {
     return this.prisma.diary.findMany({
       where: { userId },
       orderBy: {
-        date: 'desc', // 🚀 시스템 생성 시점이 아닌 '실제 일기 날짜' 순으로 보여줍니다.
+        date: 'desc',
       },
     });
   }
@@ -35,28 +40,38 @@ export class DiariesService {
 
   // 일기 생성
   async create(createDiaryDto: CreateDiaryDto, userId: number) {
-    const { title, content, mood, date } = createDiaryDto;
-    
+    const { title, content, mood, date, isSpecial } = createDiaryDto;
+
     return this.prisma.diary.create({
       data: {
         title,
         content,
         mood,
         userId,
-        date: new Date(date), // 🚀 명시적인 일기 날짜 저장
+        date: new Date(date),
+        isSpecial: isSpecial || false,
       },
     });
   }
 
   // 일기 수정 (소유권 확인 포함)
-  async update(id: number, updateDiaryDto: Partial<CreateDiaryDto>, userId: number) {
+  async update(
+    id: number,
+    updateDiaryDto: UpdateDiaryDto,
+    userId: number,
+  ) {
     await this.findOne(id, userId); // 존재 여부 및 소유권 확인
+
+    const { title, content, mood, date, isSpecial } = updateDiaryDto;
 
     return this.prisma.diary.update({
       where: { id },
       data: {
-        ...updateDiaryDto,
-        ...(updateDiaryDto.date && { date: new Date(updateDiaryDto.date) }),
+        ...(title && { title }),
+        ...(content && { content }),
+        ...(mood && { mood }),
+        ...(isSpecial !== undefined && { isSpecial }),
+        ...(date && { date: new Date(date) }),
       },
     });
   }

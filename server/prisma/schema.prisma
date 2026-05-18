@@ -1,8 +1,7 @@
 // server/prisma/schema.prisma
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/client"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -37,6 +36,7 @@ model Diary {
   title     String
   content   String   @db.Text
   mood      String   // 😊, 😎, 😭 등 이모지 저장
+  isSpecial Boolean  @default(false) // 🌟 소중한 기록(북마크) 여부
   date      DateTime // 🚀 실제 일기 기록 날짜 (이제 필수 필드입니다!)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

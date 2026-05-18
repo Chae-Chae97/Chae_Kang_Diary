@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, LineChart, Line, Legend
+  PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
@@ -168,7 +168,7 @@ export default function StatsPage() {
           </h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
+              <BarChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                 <XAxis 
                   dataKey="date" 
@@ -179,7 +179,7 @@ export default function StatsPage() {
                 />
                 <YAxis hide domain={[0, 6]} />
                 <Tooltip 
-                  cursor={{ stroke: '#FACC15', strokeWidth: 2 }}
+                  cursor={{ fill: 'transparent' }}
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
@@ -192,15 +192,13 @@ export default function StatsPage() {
                     return null;
                   }}
                 />
-                <Line 
-                  type="monotone" 
+                <Bar 
                   dataKey="score" 
-                  stroke="#FACC15" 
-                  strokeWidth={4} 
-                  dot={{ r: 6, fill: '#FACC15', strokeWidth: 2, stroke: '#fff' }}
-                  activeDot={{ r: 8, strokeWidth: 0 }}
+                  fill="#FACC15" 
+                  radius={[10, 10, 0, 0]}
+                  barSize={40}
                 />
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </motion.div>

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum, IsISO8601, IsOptional, IsBoolean } from 'class-validator';
 
 export enum Mood {
   HAPPY = '😊',
@@ -11,18 +11,21 @@ export enum Mood {
 export class CreateDiaryDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  title!: string;
 
   @IsNotEmpty()
   @IsString()
-  content: string;
+  content!: string;
 
   @IsNotEmpty()
   @IsEnum(Mood, { message: '허용되지 않은 감정(이모지)입니다.' })
-  mood: string;
+  mood!: string;
 
-  @IsNotEmpty({ message: '일기 날짜는 필수입니다.' })
-  @IsDateString({}, { message: '올바른 날짜 형식이 아닙니다.' })
-  date: string;
+  @IsNotEmpty()
+  @IsISO8601({}, { message: '유효한 날짜 형식(ISO8601)이어야 합니다.' })
+  date!: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isSpecial?: boolean;
 }
-

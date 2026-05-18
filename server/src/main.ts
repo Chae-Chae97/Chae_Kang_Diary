@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 // 🚀 최상단에서 환경 변수를 가장 먼저 로드합니다.
-dotenv.config({ path: path.resolve(process.cwd(), '.env') }); 
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 // Today's Backend & Frontend Integration Completed!
 import { NestFactory } from '@nestjs/core';
@@ -28,6 +28,8 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`Server is running on port ${port}`); 
+  console.log(`Server is running on port ${port}`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error(err);
+});

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { Calendar, PenLine, Settings, LogOut, BookText, PieChart } from 'lucide-react';
+import { Calendar, PenLine, Settings, BookText, PieChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Sidebar = () => {
@@ -30,7 +30,7 @@ export const Sidebar = () => {
           </h1>
         </Link>
       </div>
-
+      
       {/* 네비게이션 메뉴 */}
       <nav className="flex-1 px-4 space-y-8">
         <div>
@@ -51,7 +51,7 @@ export const Sidebar = () => {
                       {item.icon}
                     </span>
                     <span className="text-sm tracking-tight">{item.label}</span>
-
+                    
                     {isActive && (
                       <motion.div 
                         layoutId="activeNav"

@@ -1,20 +1,18 @@
 'use client';
 
-import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Language, translations } from '@/constants/globalMessages';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const { lang, setLanguage } = useLanguage();
-  const { theme, setTheme } = useTheme();
+  const { lang, t, setLanguage } = useLanguage();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLanguageChange = (newLang: Language) => {
     setLanguage(newLang);
     toast.success(translations[newLang].save_success);
   };
-
 
   return (
     <main className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mt-10 transition-colors duration-300">

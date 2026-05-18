@@ -1,8 +1,6 @@
 "use client";
 
 import { DayPicker } from "react-day-picker";
-import { format } from "date-fns";
-import { enUS, ko, ja } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -18,16 +16,7 @@ interface DiaryCalendarProps {
 }
 
 export function DiaryCalendar({ selectedDate, onDateSelect, diaryDates }: DiaryCalendarProps) {
-  const { lang, t } = useLanguage();
-  
-  // 언어에 따른 date-fns 로케일 설정
-  const localeMap = {
-    ko: ko,
-    en: enUS,
-    jp: ja
-  };
-  
-  const currentLocale = localeMap[lang] || ko;
+  const { t, dateLocale } = useLanguage();
 
   return (
     <motion.div 
@@ -44,7 +33,7 @@ export function DiaryCalendar({ selectedDate, onDateSelect, diaryDates }: DiaryC
         mode="single"
         selected={selectedDate}
         onSelect={(date) => date && onDateSelect(date)}
-        locale={currentLocale}
+        locale={dateLocale}
         modifiers={{
           hasDiary: diaryDates.map(date => new Date(date)),
         }}

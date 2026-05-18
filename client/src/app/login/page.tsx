@@ -35,15 +35,19 @@ export default function LoginPage() {
 
       // 4. 전역 상태 업데이트
       setAuth({
-        id: userData.id,
-        email: userData.email,
-        nickname: userData.profile?.nickname || userData.name || '사용자',
+        id: userResponse.data.id,
+        email: userResponse.data.email,
+        nickname: userResponse.data.profile?.nickname || userResponse.data.name || '사용자',
       });
 
       toast.success('로그인되었습니다!');
       router.push('/');
-    } catch (error: any) {
-      const message = error.response?.data?.message || '로그인에 실패했습니다.';
+    } catch (err: unknown) {
+      let message = '로그인에 실패했습니다.';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response: { data: { message: string } } };
+        message = axiosError.response?.data?.message || message;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

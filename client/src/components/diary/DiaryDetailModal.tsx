@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Edit2, Trash2, Calendar, Bookmark } from "lucide-react";
 import { format } from "date-fns";
-import { enUS, ko, ja } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from '@/context/LanguageContext';
+import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 interface Diary {
   id: number;
@@ -14,6 +15,7 @@ interface Diary {
   content?: string;
   mood: string;
   date: string;
+  isSpecial: boolean;
 }
 
 interface DiaryDetailModalProps {
@@ -22,28 +24,42 @@ interface DiaryDetailModalProps {
   onClose: () => void;
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;
+  onUpdate: (updatedDiary: any) => void;
 }
 
-export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit }: DiaryDetailModalProps) {
-  const { lang, t } = useLanguage();
-
-  // 언어에 따른 date-fns 로케일 설정
-  const localeMap = {
-    ko: ko,
-    en: enUS,
-    jp: ja
-  };
-  
-  const currentLocale = localeMap[lang] || ko;
+export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit, onUpdate }: DiaryDetailModalProps) {
+  const { t, dateLocale } = useLanguage();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
-    // TODO: 백엔드 API 연동 (PATCH /diaries/:id/bookmark)
+  useEffect(() => {
+    if (diary) {
+      setIsBookmarked(diary.isSpecial);
+    }
+  }, [diary]);
+
+  const toggleBookmark = async () => {
+    if (!diary || isUpdating) return;
+
+    setIsUpdating(true);
+    const newStatus = !isBookmarked;
+    
+    try {
+      const response = await api.patch(`/diaries/${diary.id}`, {
+        isSpecial: newStatus
+      });
+      setIsBookmarked(newStatus);
+      onUpdate(response.data);
+      toast.success(newStatus ? '소중한 기록으로 보관되었습니다.' : '보관이 해제되었습니다.');
+    } catch (err) {
+      toast.error('상태 변경에 실패했습니다.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
-  const formattedDate = diary ? format(new Date(diary.date), t.diary_date_with_day_format, { locale: currentLocale }) : "";
+  const formattedDate = diary ? format(new Date(diary.date), t.diary_date_with_day_format, { locale: dateLocale }) : "";
 
   return (
     <AnimatePresence>

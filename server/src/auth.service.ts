@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -43,19 +48,25 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       console.log(`[Login Failed] User not found for email: ${email}`);
-      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다.',
+      );
     }
 
     const isPasswordMatching = await bcrypt.compare(password, user.password);
     console.log(`[Login Debug] Password Match result: ${isPasswordMatching}`);
 
     if (!isPasswordMatching) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다.',
+      );
     }
 
     const payload = { email: user.email, sub: Number(user.id) };
-    console.log(`[Login Success] Issuing token for user: ${user.email}, ID: ${user.id}`);
-    
+    console.log(
+      `[Login Success] Issuing token for user: ${user.email}, ID: ${user.id}`,
+    );
+
     return {
       accessToken: this.jwtService.sign(payload),
     };
@@ -81,7 +92,10 @@ export class AuthService {
     });
   }
 
-  async changePassword(userId: number, changePasswordDto: ChangePasswordDto): Promise<void> {
+  async changePassword(
+    userId: number,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
     const { currentPassword, newPassword } = changePasswordDto;
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -89,7 +103,10 @@ export class AuthService {
       throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
     }
 
-    const isPasswordMatching = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordMatching = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isPasswordMatching) {
       throw new BadRequestException('현재 비밀번호가 일치하지 않습니다.');
     }
