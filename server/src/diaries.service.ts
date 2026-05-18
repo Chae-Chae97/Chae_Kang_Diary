@@ -10,12 +10,12 @@ import { CreateDiaryDto } from './dto/create-diary.dto';
 export class DiariesService {
   constructor(private prisma: PrismaService) {}
 
-  // 내 일기 목록 조회 (실제 일기 날짜 기준 정렬)
+  // 내 일기 목록 조회 (일기 날짜 기준 정렬)
   async findAll(userId: number) {
     return this.prisma.diary.findMany({
       where: { userId },
       orderBy: {
-        date: 'desc', // 🚀 시스템 생성 시점이 아닌 '실제 일기 날짜' 순으로 보여줍니다.
+        date: 'desc',
       },
     });
   }
@@ -40,14 +40,14 @@ export class DiariesService {
   // 일기 생성
   async create(createDiaryDto: CreateDiaryDto, userId: number) {
     const { title, content, mood, date } = createDiaryDto;
-    
+
     return this.prisma.diary.create({
       data: {
         title,
         content,
         mood,
         userId,
-        date: new Date(date), // 🚀 명시적인 일기 날짜 저장
+        date: new Date(date),
       },
     });
   }
@@ -60,11 +60,13 @@ export class DiariesService {
   ) {
     await this.findOne(id, userId); // 존재 여부 및 소유권 확인
 
+    const { date, ...rest } = updateDiaryDto;
+
     return this.prisma.diary.update({
       where: { id },
       data: {
-        ...updateDiaryDto,
-        ...(updateDiaryDto.date && { date: new Date(updateDiaryDto.date) }),
+        ...rest,
+        ...(date && { date: new Date(date) }),
       },
     });
   }

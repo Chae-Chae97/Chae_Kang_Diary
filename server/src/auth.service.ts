@@ -63,8 +63,10 @@ export class AuthService {
     }
 
     const payload = { email: user.email, sub: Number(user.id) };
-    console.log(`[Login Success] Issuing token for user: ${user.email}, ID: ${user.id}`);
-    
+    console.log(
+      `[Login Success] Issuing token for user: ${user.email}, ID: ${user.id}`,
+    );
+
     return {
       accessToken: this.jwtService.sign(payload),
     };

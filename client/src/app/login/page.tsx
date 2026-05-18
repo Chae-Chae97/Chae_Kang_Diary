@@ -35,9 +35,9 @@ export default function LoginPage() {
 
       // 4. 전역 상태 업데이트
       setAuth({
-        id: userData.id,
-        email: userData.email,
-        nickname: userData.profile?.nickname || userData.name || '사용자',
+        id: userResponse.data.id,
+        email: userResponse.data.email,
+        nickname: userResponse.data.profile?.nickname || userResponse.data.name || '사용자',
       });
 
       toast.success('로그인되었습니다!');
