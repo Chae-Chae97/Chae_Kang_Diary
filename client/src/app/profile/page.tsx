@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const { user, setAuth } = useAuthStore();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -49,19 +49,19 @@ export default function ProfilePage() {
           favoriteMood: diaries.length > 0 ? diaries[0].mood : '😊', // 임시로 최근 감정
         });
       } catch (err) {
-        toast.error('정보를 불러오는데 실패했습니다.');
+        toast.error(t.load_fail);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [t.load_fail]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.patch('/auth/profile', {
+      await api.patch('/auth/profile', {
         nickname: profileData.nickname,
         bio: profileData.bio
       });
@@ -75,14 +75,14 @@ export default function ProfilePage() {
       }
 
       setIsEditing(false);
-      toast.success('프로필 정보가 수정되었습니다.');
+      toast.success(t.update_success);
     } catch (err) {
-      toast.error('수정에 실패했습니다.');
+      toast.error(t.update_fail);
     }
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-[60vh]">로딩 중...</div>;
+    return <div className="flex items-center justify-center min-h-[60vh]">{t.loading}</div>;
   }
 
   return (
@@ -121,7 +121,7 @@ export default function ProfilePage() {
               <div className="flex items-center justify-center gap-2 mt-6 py-2 px-4 bg-gray-50 dark:bg-gray-700/50 rounded-full inline-flex">
                 <Calendar className="w-4 h-4 text-yellow-600" />
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                  가입일: {user?.id ? '2026-05-18' : '가입 정보 없음'} 
+                  {t.profile_joined}: {user?.id ? '2026-05-18' : t.profile_no_join_info} 
                 </span>
               </div>
             </div>
@@ -129,21 +129,27 @@ export default function ProfilePage() {
 
           {/* 활동 요약 카드 */}
           <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 shadow-lg shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700">
-            <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 ml-1">나의 활동 요약</h3>
+            <h3 className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 ml-1">
+              {t.profile_activity_summary}
+            </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-2xl border border-yellow-100 dark:border-yellow-900/20">
                 <div className="flex items-center gap-3">
                   <BookHeart className="w-5 h-5 text-yellow-600" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">작성한 일기</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{t.stats_total_records}</span>
                 </div>
-                <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">{stats.totalDiaries}개</span>
+                <span className="text-xl font-black text-yellow-700 dark:text-yellow-400">
+                  {stats.totalDiaries}{t.stats_unit_count}
+                </span>
               </div>
               <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{stats.favoriteMood}</span>
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">최근 감정</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{t.modal_mood_title}</span>
                 </div>
-                <span className="text-sm font-black text-blue-700 dark:text-blue-400">기록됨</span>
+                <span className="text-sm font-black text-blue-700 dark:text-blue-400">
+                  {t.profile_recorded}
+                </span>
               </div>
             </div>
           </div>
@@ -157,7 +163,7 @@ export default function ProfilePage() {
                 <div className="p-2 bg-yellow-400 rounded-xl">
                   <User className="w-5 h-5 text-black" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">상세 프로필 설정</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{t.profile_title}</h3>
               </div>
               {!isEditing && (
                 <Button 
@@ -167,7 +173,7 @@ export default function ProfilePage() {
                   className="rounded-full gap-2 border border-gray-100 dark:border-gray-700"
                 >
                   <PencilLine className="w-4 h-4" />
-                  정보 수정
+                  {t.profile_edit}
                 </Button>
               )}
             </div>
@@ -175,7 +181,7 @@ export default function ProfilePage() {
             <form onSubmit={handleUpdateProfile} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">이름(닉네임)</label>
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">{t.profile_nickname}</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input 
@@ -188,7 +194,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">이메일 계정</label>
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">{t.email_label}</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input 
@@ -198,19 +204,19 @@ export default function ProfilePage() {
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl opacity-70 cursor-not-allowed font-bold text-gray-800 dark:text-white"
                     />
                   </div>
-                  <p className="text-[10px] text-gray-400 ml-1 italic">* 이메일은 변경할 수 없습니다.</p>
+                  <p className="text-[10px] text-gray-400 ml-1 italic">{t.profile_email_info}</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">자기소개</label>
+                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 ml-1">{t.profile_bio}</label>
                 <div className="relative">
                   <FileText className="absolute left-4 top-5 w-5 h-5 text-gray-400" />
                   <textarea 
                     disabled={!isEditing}
                     value={profileData.bio}
                     onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
-                    placeholder="자신을 한 줄로 표현해 보세요."
+                    placeholder={t.profile_bio_placeholder}
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium text-gray-800 dark:text-white h-32 resize-none"
                   />
                 </div>
@@ -222,14 +228,14 @@ export default function ProfilePage() {
                     <ShieldCheck className="w-6 h-6 text-green-500" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-800 dark:text-white">계정 보안</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">소중한 개인정보 보호를 위해 정기적으로 비밀번호를 변경해 주세요.</p>
+                    <h4 className="font-bold text-gray-800 dark:text-white">{t.profile_security}</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t.profile_security_desc}</p>
                     <button 
                       type="button" 
                       onClick={() => setIsPasswordModalOpen(true)}
                       className="text-sm text-yellow-600 dark:text-yellow-400 font-bold mt-3 hover:underline"
                     >
-                      비밀번호 변경하기 →
+                      {t.profile_change_password} →
                     </button>
                   </div>
                 </div>
@@ -242,22 +248,22 @@ export default function ProfilePage() {
                     onClick={() => setIsEditing(false)}
                     className="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold rounded-2xl hover:bg-gray-200 transition-colors"
                   >
-                    취소
+                    {t.cancel}
                   </button>
                   <Button 
                     type="submit"
                     className="flex-[2] py-4 rounded-2xl text-lg font-bold shadow-lg shadow-yellow-100 dark:shadow-yellow-900/20 transition-transform hover:scale-[1.02]"
                   >
-                    저장하기
+                    {t.save}
                   </Button>
                 </div>
               )}
             </form>
 
             <div className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-700">
-              <h4 className="text-sm font-bold text-red-400 mb-4 ml-1">위험 구역</h4>
+              <h4 className="text-sm font-bold text-red-400 mb-4 ml-1">{t.profile_danger_zone}</h4>
               <button className="px-6 py-3 border border-red-100 dark:border-red-900/30 text-red-500 text-xs font-bold rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                회원 탈퇴하기
+                {t.profile_withdraw}
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, Legend
@@ -8,27 +8,8 @@ import {
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/context/LanguageContext';
 import { BookHeart, TrendingUp, PieChart as PieChartIcon, Calendar } from 'lucide-react';
-
-// 임시 데이터 (나중에 백엔드 API에서 가져올 데이터)
-const DUMMY_DIARIES = [
-  { mood: '😊', createdAt: '2026-05-01' },
-  { mood: '😊', createdAt: '2026-05-02' },
-  { mood: '😎', createdAt: '2026-05-03' },
-  { mood: '😭', createdAt: '2026-05-04' },
-  { mood: '😊', createdAt: '2026-05-05' },
-  { mood: '😴', createdAt: '2026-05-06' },
-  { mood: '😡', createdAt: '2026-05-07' },
-  { mood: '😊', createdAt: '2026-05-08' },
-  { mood: '😎', createdAt: '2026-05-09' },
-  { mood: '😊', createdAt: '2026-05-10' },
-  { mood: '😎', createdAt: '2026-05-11' },
-  { mood: '😊', createdAt: '2026-05-12' },
-  { mood: '😴', createdAt: '2026-05-13' },
-  { mood: '😊', createdAt: '2026-05-14' },
-  { mood: '😊', createdAt: '2026-05-15' },
-  { mood: '😎', createdAt: '2026-05-16' },
-  { mood: '😊', createdAt: '2026-05-17' },
-];
+import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 const MOOD_COLORS: Record<string, string> = {
   '😊': '#FACC15', // yellow-400
@@ -38,36 +19,66 @@ const MOOD_COLORS: Record<string, string> = {
   '😴': '#A78BFA', // violet-400
 };
 
+const MOOD_SCORES: Record<string, number> = {
+  '😊': 5,
+  '😎': 4,
+  '😴': 3,
+  '😭': 2,
+  '😡': 1
+};
+
+interface StatsData {
+  totalCount: number;
+  moodDistribution: { mood: string; count: number }[];
+  recentTrend: { date: string; mood: string }[];
+}
+
 export default function StatsPage() {
   const { t } = useLanguage();
+  const [data, setData] = useState<StatsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/diaries/stats');
+        setData(response.data);
+      } catch (err) {
+        console.error('통계 데이터 로드 실패:', err);
+        toast.error(t.load_fail);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, [t.load_fail]);
 
   const moodStats = useMemo(() => {
-    const counts: Record<string, number> = {};
-    DUMMY_DIARIES.forEach(d => {
-      counts[d.mood] = (counts[d.mood] || 0) + 1;
-    });
+    if (!data) return { pieData: [], mostCommon: 'N/A', total: 0 };
 
-    const pieData = Object.entries(counts).map(([mood, value]) => ({
-      name: mood,
-      value,
-      color: MOOD_COLORS[mood] || '#CBD5E1'
+    const pieData = data.moodDistribution.map(item => ({
+      name: item.mood,
+      value: item.count,
+      color: MOOD_COLORS[item.mood] || '#CBD5E1'
     }));
 
-    const sortedMoods = [...pieData].sort((a, b) => b.value - a.value);
-    const mostCommon = sortedMoods[0]?.name || 'N/A';
+    const sortedMoods = [...data.moodDistribution].sort((a, b) => b.count - a.count);
+    const mostCommon = sortedMoods[0]?.mood || 'N/A';
 
-    return { pieData, mostCommon, total: DUMMY_DIARIES.length };
-  }, []);
+    return { pieData, mostCommon, total: data.totalCount };
+  }, [data]);
 
-  // 감정 변화 추이 데이터 가공 (최근 7일 등)
   const trendData = useMemo(() => {
-    const moodScore: Record<string, number> = { '😊': 5, '😎': 4, '😴': 3, '😭': 2, '😡': 1 };
-    return DUMMY_DIARIES.slice(-7).map(d => ({
-      date: d.createdAt.split('-').slice(1).join('/'),
-      score: moodScore[d.mood] || 3,
-      mood: d.mood
-    }));
-  }, []);
+    if (!data) return [];
+    return data.recentTrend.map(d => {
+      const dateObj = new Date(d.date);
+      return {
+        date: `${dateObj.getMonth() + 1}/${dateObj.getDate()}`,
+        score: MOOD_SCORES[d.mood] || 3,
+        mood: d.mood
+      };
+    });
+  }, [data]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -81,6 +92,15 @@ export default function StatsPage() {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+        <p className="text-gray-500 font-bold animate-pulse">{t.stats_analyzing}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4 space-y-10">
@@ -108,7 +128,7 @@ export default function StatsPage() {
             <Calendar className="w-6 h-6 text-yellow-600" />
           </div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t.stats_total_records}</p>
-          <h2 className="text-4xl font-black text-gray-900 dark:text-white">{moodStats.total}<span className="text-lg ml-1">개</span></h2>
+          <h2 className="text-4xl font-black text-gray-900 dark:text-white">{moodStats.total}<span className="text-lg ml-1">{t.stats_unit_count}</span></h2>
         </motion.div>
 
         {/* 요약 카드 2 */}
@@ -126,7 +146,9 @@ export default function StatsPage() {
             <TrendingUp className="w-6 h-6 text-green-600" />
           </div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{t.stats_mood_trend}</p>
-          <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Rising</h2>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+            {trendData.length > 1 ? (trendData[trendData.length-1].score >= trendData[trendData.length-2].score ? 'Stable' : 'Volatile') : 'Initial'}
+          </h2>
         </motion.div>
       </motion.div>
 

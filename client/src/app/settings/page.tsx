@@ -6,11 +6,11 @@ import { Language, translations } from '@/constants/globalMessages';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const { lang, t, setLanguage } = useLanguage();
+  const { lang, t, setLang } = useLanguage();
   const { isDarkMode, toggleTheme } = useTheme();
 
   const handleLanguageChange = (newLang: Language) => {
-    setLanguage(newLang);
+    setLang(newLang);
     toast.success(translations[newLang].save_success);
   };
 
@@ -38,7 +38,7 @@ export default function SettingsPage() {
                     : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
               >
-                {l === 'ko' ? '한국어' : l === 'en' ? 'English' : '日本語'}
+                {l === 'ko' ? t.lang_ko : l === 'en' ? t.lang_en : t.lang_jp}
               </button>
             ))}
           </div>
@@ -64,7 +64,7 @@ export default function SettingsPage() {
         </section>
 
         <div className="pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-center text-gray-400 text-sm">
-          Version 1.0.0
+          {t.settings_version} 1.0.0
         </div>
       </div>
     </main>

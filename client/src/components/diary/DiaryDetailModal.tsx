@@ -51,9 +51,9 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit, onU
       });
       setIsBookmarked(newStatus);
       onUpdate(response.data);
-      toast.success(newStatus ? '소중한 기록으로 보관되었습니다.' : '보관이 해제되었습니다.');
+      toast.success(newStatus ? t.diary_special_save : t.diary_special_remove);
     } catch (err) {
-      toast.error('상태 변경에 실패했습니다.');
+      toast.error(t.diary_status_fail);
     } finally {
       setIsUpdating(false);
     }
@@ -65,7 +65,13 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit, onU
     <AnimatePresence>
       {isOpen && diary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* ... (backdrop) */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          />
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -99,7 +105,7 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit, onU
                 whileTap={{ scale: 0.9, y: 2 }}
                 onClick={toggleBookmark}
                 className="absolute -top-1 left-8 outline-none group"
-                title="소중한 기록으로 보관"
+                title={t.diary_special_tooltip}
               >
                 <Bookmark 
                   className={`w-10 h-14 transition-colors duration-300 drop-shadow-md ${
@@ -114,7 +120,7 @@ export function DiaryDetailModal({ diary, isOpen, onClose, onDelete, onEdit, onU
                     animate={{ opacity: 1, y: 0 }}
                     className="absolute top-16 -left-4 whitespace-nowrap bg-black/80 text-white text-[10px] px-2 py-1 rounded pointer-events-none"
                   >
-                    소중한 기록 ✨
+                    {t.diary_special_label}
                   </motion.div>
                 )}
               </motion.button>

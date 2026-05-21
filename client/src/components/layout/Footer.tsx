@@ -1,6 +1,11 @@
+'use client';
+
 import { Heart, Globe } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export const Footer = () => {
+  const { t } = useLanguage();
+
   return (
     <footer className="p-8 text-center border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-[#080c17] transition-colors duration-300 relative overflow-hidden paper-texture">
       <div className="max-w-4xl mx-auto flex flex-col items-center gap-4 relative z-10">
@@ -32,7 +37,7 @@ export const Footer = () => {
         </div>
         
         <p className="text-[10px] text-gray-300 dark:text-gray-700 font-medium italic">
-          소중한 하루를 기록하는 당신의 감성 일기장
+          {t.footer_desc}
         </p>
       </div>
     </footer>
