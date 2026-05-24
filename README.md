@@ -30,10 +30,10 @@ npm install
 
 3. 개발 서버를 실행합니다.
 \`\`\`bash
-npm run dev
+npm run start:dev
 \`\`\`
 - 브라우저에서 `http://localhost:3000`으로 접속하여 확인합니다.
 
 ## 👨‍💻 Team
 - **Frontend**: [@Chae-Chae97](https://github.com/Chae-Chae97)
-- **Backend**: [@강상 깃 허브 계정 넣어주세요](https://github.com/**여기도)
+- **Backend**: [@kanghan520](https://github.com/kanghan520)
