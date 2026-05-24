@@ -4,7 +4,7 @@
 
 ## 🛠️ Tech Stack
 - **Frontend**: Next.js (App Router), React, Tailwind CSS
-- **Backend**: 
+- **Backend**: NestJS, Node.js, Prisma (ORM), PostgreSQL
 - **Cooperation**: GitHub Projects, Discord
 
 ## ✨ Key Features
@@ -13,7 +13,7 @@
 - **통계 대시보드**: 감정 분포 및 최근 기분 추이 시각화
 - **회원가입 및 로그인**: JWT 기반 보안 인증 및 개인 프로필 관리
 - **다국어 지원**: 한국어, 영어, 일본어 선택 가능
-- **테마 모드**: 라이트 모드 및 다크 모드 지원
+- **테마 모드**: 라이트 모드 및 다크 모드 지원 
 
 ## 🚀 How to Run (로컬 실행 방법)
 
